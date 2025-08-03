@@ -49,6 +49,141 @@ What is a Stack?
 <img width="1106" height="627" alt="image" src="https://github.com/user-attachments/assets/fbca44ff-8301-4f3d-9254-56aec787f849" />  
 <img width="1293" height="547" alt="image" src="https://github.com/user-attachments/assets/57034478-00dd-4242-9f3a-fac731f80034" />  
 
+- Stacks can either be implemented using arrays or linked lists. Stacks are generally implemented using arrays because it takes less space; we don’t need to store an additional pointer like in a linked list.
+-  Java doesn’t allow direct creation of generic arrays like new V[maxSize]. You must do unchecked casts (like with generic arrays), Only use it when you're sure the cast won't cause runtime errors.
+-  <img width="1263" height="267" alt="image" src="https://github.com/user-attachments/assets/ad503feb-77cb-467b-999f-7816ddcf5966" />
+```java
+ how to construct the Stack class:
+public class Stack <V> {
+    private int maxSize;
+    private int top;
+    private V arr[];
+
+    /*
+    Java does not allow generic type arrays. So we have used an 
+    array of Object type and type-casted it to the generic type V.
+    This type-casting is unsafe and produces a warning.
+    Comment out the line below and execute again to see the warning.
+    */
+    @SuppressWarnings("unchecked")
+    public Stack(int max_size) {
+        this.maxSize = max_size;
+        this.top = -1; //initially when stack is empty
+        arr = (V[]) new Object[max_size];//type casting Object[] to V[]
+    }
+    public int getCapacity() {
+        return maxSize;
+    }
+
+}
+```
+code for stacks with the new helper methods.
+```java
+public class Stack <V> {
+    private int maxSize;
+    private int top;
+    private V array[];
+
+    /*
+    Java does not allow generic type arrays. So we have used an
+    array of Object type and type-casted it to the generic type V.
+    This type-casting is unsafe and produces a warning.
+    Comment out the line below and execute again to see the warning.
+    */
+    @SuppressWarnings("unchecked")
+    public Stack(int max_size) {
+        this.maxSize = max_size;
+        this.top = -1; //initially when stack is empty
+        array = (V[]) new Object[max_size];//type casting Object[] to V[]
+    }
+
+    //returns the maximum size capacity
+    public int getMaxSize() {
+        return maxSize;
+    }
+
+    //returns true if Stack is empty
+    public boolean isEmpty(){
+        return top == -1;
+    }
+
+    //returns true if Stack is full
+    public boolean isFull(){
+        return top == maxSize -1;
+    }
+
+    //returns the value at top of Stack
+    public V top(){
+        if(isEmpty())
+            return null;
+        return array[top];
+    }
+}
+```
+add and remove some elements from this stack by using these two functions.
+
+```java
+public class Stack <V> {
+    private int maxSize;
+    private int top;
+    private V array[];
+
+    /*
+    Java does not allow generic type arrays. So we have used an
+    array of Object type and type-casted it to the generic type V.
+    This type-casting is unsafe and produces a warning.
+    Comment out the line below and execute again to see the warning.
+    */
+    @SuppressWarnings("unchecked")
+    public Stack(int max_size) {
+        this.maxSize = max_size;
+        this.top = -1; //initially when stack is empty
+        array = (V[]) new Object[max_size];//type casting Object[] to V[]
+    }
+
+    //returns the maximum size capacity
+    public int getMaxSize() {
+        return maxSize;
+    }
+
+    //returns true if Stack is empty
+    public boolean isEmpty(){
+        return top == -1;
+    }
+
+    //returns true if Stack is full
+    public boolean isFull(){
+        return top == maxSize -1;
+    }
+
+    //returns the value at top of Stack
+    public V top(){
+        if(isEmpty())
+            return null;
+        return array[top];
+    }
+
+    //inserts a value to the top of Stack
+    public void push(V value){
+        if(isFull()) {
+            System.err.println("Stack is Full!");
+            return;
+        }
+        array[++top] = value; //increments the top and adds value to updated top
+    }
+
+    //removes a value from top of Stack and returns
+    public V pop(){
+        if(isEmpty())
+            return null;
+        return array[top--]; //returns value and top and decrements the top
+    }
+
+}
+```
+
+If you look at the output of the code, you can see that the elements popped out of the stack in the exact reverse order as they were pushed in. That means our Stack works perfectly.  
+
 
 
 
