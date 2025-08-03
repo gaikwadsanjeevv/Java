@@ -39,6 +39,37 @@ Big O.
 <img width="1331" height="255" alt="image" src="https://github.com/user-attachments/assets/8a5d58c9-59d1-476e-9f9e-a8f79cee5946" />  
 <img width="1277" height="502" alt="image" src="https://github.com/user-attachments/assets/9ee3ca67-0f4b-4c4c-b50c-6d7627b21a56" />  
 <img width="1263" height="597" alt="image" src="https://github.com/user-attachments/assets/11308b96-eb7b-4b48-87bb-81fe329a9b12" />  
+<img width="1248" height="382" alt="image" src="https://github.com/user-attachments/assets/141df67d-d46c-48fd-a3aa-a879ded144a6" />  
+<img width="1255" height="515" alt="image" src="https://github.com/user-attachments/assets/365a015e-8253-4943-bfb3-49c08c03e948" />  
+
+What is a Stack?  
+- We are all familiar with the famous Undo option, which is present in almost every application. Have you ever wondered how it works? The idea is that you store the previous states of your work (which are limited to a specific number), in the memory in such an order that the last one appears first. This can’t be done just by using arrays, which is why the Stack comes in handy.  
+- You can think of the Stack as a container, in which we can add items and remove them. Only the top of this container is open, so the item we put in first will be taken out last, and the items we put in last will be taken out first. This is called the last in first out (LIFO) ordering.
+```Benefits
+✅ Benefits of Stacks
+Efficient Backtracking
+Allows returning to a previous task or state by simply popping the top of the stack.
+Example: Recursive functions use the call stack to track previous function calls.
+Supports Function Call Management
+Manages function execution order (LIFO) and stores local variables, return addresses, etc.
+Simplifies Expression Evaluation
+Used in infix to postfix conversion and postfix expression evaluation in compilers.
+Essential in Depth-First Search (DFS)
+DFS uses stacks (explicit or implicit via recursion) to explore paths deeply before backtracking.
+Helps in Undo Mechanisms
+Applications like text editors use stacks to implement undo/redo functionality.
+Supports Syntax Parsing
+Compilers use stacks to check for balanced parentheses, brackets, and expression syntax.
+Tracks Partially Completed Tasks
+Useful when pausing a task (like one path in a graph) to explore another, while saving the state.
+Memory-efficient for LIFO Tasks
+Stacks are optimal when you need to access only the most recent item, avoiding search overhead.
+Used in Browser History Navigation
+Going back to the previous page is implemented using stacks.
+Enables Reversing Operations
+Helps reverse strings, arrays, or data structures by pushing and popping elements.
+
+```
 
 
 
