@@ -183,12 +183,184 @@ public class Stack <V> {
 ```
 
 If you look at the output of the code, you can see that the elements popped out of the stack in the exact reverse order as they were pushed in. That means our Stack works perfectly.  
+- Similar to Stack, Queue is another linear data structure that stores the elements in a sequential manner. The only significant difference between Stack and Queue is that instead of using the LIFO principle, Queue implements the FIFO method, which is short for First in First Out. Queues are slightly trickier to implement compared to stacks, as we have to keep track of both ends of the array. The elements are inserted from the back and removed from the front.
 
+What are Queues used for?  
+Most operating systems also perform operations based on a Priority Queue—a kind of queue that allows operating systems to switch between appropriate processes. They are also used to store packets on routers in a certain order when a network is congested. Implementing a cache also heavily relies on queues. We generally use queues in the following situations:  
 
+We want to prioritize something over another  
+A resource is shared between multiple devices (e.g., Web Servers and Control Units)  
+- The entire functionality of Queue depends on the enqueue and dequeue methods; the rest are just helper methods to produce simple, understandable code.
+  
+Types of Queues  
+There are three common types of queues which cover a wide range of problems:  
+Linear Queue  
+Circular Queue  
+Priority Queue   
+The queue that we have discussed so far was Linear Queue. Let’s look at the last two types and see how they are different from the Linear Queue. 
 
+Circular Queue:  
+Circular Queues are almost similar to Linear Queues with only one exception. As the name itself suggests, circular queues are circular in the structure; this means that both ends are connected to form a circle. Initially, the front and rear parts of the queue point to the same location and eventually move apart as more elements are inserted into the queue. Circular queues are generally used in the following ways:  
 
+Simulation of objects  
+Event handling (do something when a particular event occurs)  
 
+Priority Queue  
+In Priority Queues, elements are sorted in a specific order. Based on that order, the most prioritized object appears at the front of the queue, the least prioritized object appears at the end, and so on. These queues are widely used in an operating system to determine which programs should be given more priority.  
 
+Implementation of Queues  
+Queues are implemented in many ways. They can be represented by using an array, a linked list, or even a stack. That being said, an array is most commonly used because it’s the easiest way to implement Queues. A typical Queue must contain the following standard methods:  
 
+enqueue (datatype V)  
+datatype dequeue()  
+boolean isEmpty()  
+boolean isFull()  
+datatype top()  
+Before we take a look at these methods one by one, let’s construct a Queue class with an integer data type and create an instance. We will make a class with 5 data members to hold the following information:  
 
+how to construct the Queue class  
+```java
+public class Queue<V> {
+    private int maxSize;
+    private V[] array;
+    private int front;
+    private int back;
+    private int currentSize;
+
+    /*
+    Java does not allow generic type arrays. So we have used an
+    array of Object type and type-casted it to the generic type V.
+    This type-casting is unsafe and produces a warning.
+    Comment out the line below and execute again to see the warning.
+    */
+    @SuppressWarnings("unchecked")
+    public Queue(int maxSize) {
+        this.maxSize = maxSize;
+        array = (V[]) new Object[maxSize];
+        front = 0;
+        back = -1;
+        currentSize = 0;
+    }
+
+    public int getMaxSize() {
+        return maxSize;
+    }
+
+    public int getCurrentSize() {
+        return currentSize;
+    }
+
+}
+```
+Adding Helper Function: 
+```java
+public class Queue<V> {
+    private int maxSize;
+    private V[] array;
+    private int front;
+    private int back;
+    private int currentSize;
+
+    /*
+    Java does not allow generic type arrays. So we have used an
+    array of Object type and type-casted it to the generic type V.
+    This type-casting is unsafe and produces a warning.
+    Comment out the line below and execute again to see the warning.
+    */
+    @SuppressWarnings("unchecked")
+    public Queue(int maxSize) {
+        this.maxSize = maxSize;
+        array = (V[]) new Object[maxSize];
+        front = 0;
+        back = -1;
+        currentSize = 0;
+    }
+
+    public int getMaxSize() {
+        return maxSize;
+    }
+
+    public int getCurrentSize() {
+        return currentSize;
+    }
+
+    public boolean isEmpty() {
+        return currentSize == 0;
+    }
+
+    public boolean isFull() {
+        return currentSize == maxSize;
+    }
+
+    public V top() {
+        return array[front];
+    }
+
+}
+
+```
+with the enqueue and dequeue methods to add and remove elements, respectively.  
+```java
+public class Queue<V> {
+    private int maxSize;
+    private V[] array;
+    private int front;
+    private int back;
+    private int currentSize;
+
+    /*
+    Java does not allow generic type arrays. So we have used an
+    array of Object type and type-casted it to the generic type V.
+    This type-casting is unsafe and produces a warning.
+    Comment out the line below and execute again to see the warning.
+    */
+    @SuppressWarnings("unchecked")
+    public Queue(int maxSize) {
+        this.maxSize = maxSize;
+        array = (V[]) new Object[maxSize];
+        front = 0;
+        back = -1;
+        currentSize = 0;
+    }
+
+    public int getMaxSize() {
+        return maxSize;
+    }
+
+    public int getCurrentSize() {
+        return currentSize;
+    }
+
+    public boolean isEmpty() {
+        return currentSize == 0;
+    }
+
+    public boolean isFull() {
+        return currentSize == maxSize;
+    }
+
+    public V top() {
+        return array[front];
+    }
+
+    public void enqueue(V value) {
+        if (isFull())
+            return;
+        back = (back + 1) % maxSize; //to keep the index in range
+        array[back] = value;
+        currentSize++;
+    }
+
+    public V dequeue() {
+        if (isEmpty())
+            return null;
+
+        V temp = array[front];
+        front = (front + 1) % maxSize; //to keep the index in range
+        currentSize--;
+
+        return temp;
+    }
+}
+```
 
