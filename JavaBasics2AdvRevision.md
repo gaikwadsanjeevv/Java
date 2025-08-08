@@ -351,6 +351,11 @@ public class Test {
 
 <img width="1148" height="622" alt="image" src="https://github.com/user-attachments/assets/bcb493bf-4962-40ef-aae9-3d9492abcb71" />  
 
+3. Special Tricky Points for Interviews  
+Static method "overriding" is actually method hiding, not true overriding.  
+Constructors cannot be overridden.  
+Private methods are not visible to subclasses, so they cannot be overridden — but they can be re-declared in the subclass (this is a new method, not overriding).  
+Overloading works even in constructors — you can have multiple constructors in one class.
 
 
 
