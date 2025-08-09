@@ -357,82 +357,56 @@ Constructors cannot be overridden.
 Private methods are not visible to subclasses, so they cannot be overridden — but they can be re-declared in the subclass (this is a new method, not overriding).  
 Overloading works even in constructors — you can have multiple constructors in one class.  
 
-### Stack and Heap  
+### STack and Heap  
 ```java
-
 1. Java Memory Overview
 When you run a Java program, the JVM divides memory into different areas — the Stack and the Heap are two of the most important ones for everyday coding.
 
 2. Stack Memory
 Definition
 Stores method calls, local variables, and references to objects in the heap.
-
 Last In, First Out (LIFO) order for method execution.
-
 Each thread has its own stack.
-
 Memory is automatically freed when a method finishes.
 
 Key Points
 
 Stores primitive values (int, double, char, etc.) if declared locally inside a method.
-
 Stores object references (but not the object itself).
-
 Grows and shrinks as methods are called and return.
-
 Very fast access.
 
-Example
-
-java
-Copy
-Edit
 void methodA() {
     int x = 10; // Stored in stack
     Car c = new Car(); // Reference c in stack, object in heap
 }
-3. Heap Memory
+
+Heap Memory
 Definition
 Stores all objects and instance variables.
-
 Shared among all threads.
-
 Garbage Collected — JVM frees unused objects automatically.
 
 Key Points
 
 Slower access than stack, but can store large amounts of data.
-
 Objects live in the heap until they are no longer referenced (eligible for Garbage Collection).
-
 All new keyword creations go here.
 
-Example
-
-java
-Copy
-Edit
+Example: 
 Car c = new Car(); // Car object in heap, reference in stack
+
 4. How They Work Together
 Stack stores:
-
 Method execution info
-
 Local variables (primitive values)
-
 References to heap objects
 
 Heap stores:
-
 Objects themselves
-
 Instance variables of objects
-
 5. Example with Flow
-java
-Copy
-Edit
+
 class Car {
     String model; // Stored in heap as part of the object
 }
@@ -444,42 +418,17 @@ public class Test {
         car1.model = "Tesla";    // "Tesla" stored in heap (inside Car object)
     }
 }
-6. Memory Diagram
-sql
-Copy
-Edit
-📂 Stack (per thread)
- ├── main() frame
- │    ├── a = 5
- │    └── car1 → [ref to Heap@1a2b]
 
-📦 Heap (shared by all threads)
- └── [Object@1a2b] Car
-      └── model = "Tesla"
-7. Key Differences Table
-Feature	Stack	Heap
-Stores	Local variables, references, method calls	Objects, instance variables
-Size	Smaller	Larger
-Access Speed	Very fast	Slower
-Lifetime	Until method ends	Until GC removes unused objects
-Thread Access	Each thread has its own stack	Shared among all threads
-Managed by	JVM automatically at method calls/returns	JVM Garbage Collector
+<img width="845" height="380" alt="image" src="https://github.com/user-attachments/assets/3f5a744a-148b-4f60-975f-d00e1b1134e9" />  
+<img width="1075" height="457" alt="image" src="https://github.com/user-attachments/assets/4240df45-a675-40a4-81ff-2873c3e4ef99" />  
 
 8. Interview Tricky Points
 Primitives vs References — Primitives in stack, objects in heap, reference in stack.
-
 Garbage Collection — Only affects heap, not stack.
-
 StackOverflowError happens when stack memory is exhausted (e.g., infinite recursion).
-
 OutOfMemoryError: Java Heap Space happens when heap memory is exhausted.
-
 Heap memory is slower but can store more data than stack.
-
 ```
-
-
-
 
 
 
