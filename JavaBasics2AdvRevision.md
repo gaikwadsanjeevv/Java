@@ -430,6 +430,17 @@ OutOfMemoryError: Java Heap Space happens when heap memory is exhausted.
 Heap memory is slower but can store more data than stack.
 ```
 
+<img width="918" height="757" alt="image" src="https://github.com/user-attachments/assets/6e800b4d-bd96-4f2c-9473-8e7e81e83645" />  
+<img width="1133" height="613" alt="image" src="https://github.com/user-attachments/assets/74aa7e6d-f0ed-490c-a01f-1d7b775b63e0" />  
+<img width="1067" height="705" alt="image" src="https://github.com/user-attachments/assets/51c44f43-10fb-47cc-8c43-facdf013121f" />  
+<img width="1128" height="653" alt="image" src="https://github.com/user-attachments/assets/9c0abdcb-6c54-49e1-b492-22ad1e2c8ea4" />  
+<img width="1047" height="727" alt="image" src="https://github.com/user-attachments/assets/71c0c0db-4046-4201-9164-8501e5fe042c" />  
+
+
+
+
+
+
 
 
 
