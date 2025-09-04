@@ -1,3 +1,6 @@
+<img width="1776" height="622" alt="image" src="https://github.com/user-attachments/assets/53e2eb02-d2d1-48df-982f-ace590a67349" />  
+
+
 Primitive data types are fundamental building blocks in Java, representing basic values like numbers and characters directly in memory. They are efficient and don't have methods. In contrast, wrapper classes are Java objects that encapsulate these primitive types. They provide a way to treat primitives as objects, which is essential for many of Java's features.    <img width="1304" height="582" alt="image" src="https://github.com/user-attachments/assets/ea74e61b-5985-43a7-b78a-fd3be370cffc" />    Autoboxing and Unboxing 📦      
 
 Java simplifies the use of wrappers with autoboxing and unboxing.      
