@@ -6,12 +6,7 @@
 👉 String.format() = Returns a formatted string (without printing).  
 <img width="1318" height="1028" alt="image" src="https://github.com/user-attachments/assets/8e6ad0a3-e079-46dc-82a1-bc39bb2bcf04" />
 <img width="1314" height="958" alt="image" src="https://github.com/user-attachments/assets/faf5f4dd-81c2-48fb-b8c8-3de82e15bab8" />
-<img width="1314" height="958" alt="image" src="https://github.com/user-attachments/assets/9f6b2425-3f16-4212-89f2-04c89d21a70f" />
-
-
-
-
-
+<img width="1308" height="1036" alt="image" src="https://github.com/user-attachments/assets/64f9694d-e261-4c56-8744-38a49dff012e" />
 
 Primitive data types are fundamental building blocks in Java, representing basic values like numbers and characters directly in memory. They are efficient and don't have methods. In contrast, wrapper classes are Java objects that encapsulate these primitive types. They provide a way to treat primitives as objects, which is essential for many of Java's features.    <img width="1304" height="582" alt="image" src="https://github.com/user-attachments/assets/ea74e61b-5985-43a7-b78a-fd3be370cffc" />    Autoboxing and Unboxing 📦      
 
