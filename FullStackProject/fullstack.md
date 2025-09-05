@@ -1,6 +1,13 @@
 <img width="1776" height="622" alt="image" src="https://github.com/user-attachments/assets/53e2eb02-d2d1-48df-982f-ace590a67349" />  
 <img width="1664" height="1006" alt="image" src="https://github.com/user-attachments/assets/c3a44b80-6067-47d5-b038-8a41752f59bd" />  
 <img width="1622" height="1106" alt="image" src="https://github.com/user-attachments/assets/d91f5415-2c26-47fa-82b0-01782818ed7b" />  
+- Java Introduced it to avoid messy concatenations.  
+👉 System.out.printf() = Print formatted text to console.  
+👉 String.format() = Returns a formatted string (without printing).  
+<img width="1318" height="1028" alt="image" src="https://github.com/user-attachments/assets/8e6ad0a3-e079-46dc-82a1-bc39bb2bcf04" />
+<img width="1314" height="958" alt="image" src="https://github.com/user-attachments/assets/faf5f4dd-81c2-48fb-b8c8-3de82e15bab8" />
+<img width="1314" height="958" alt="image" src="https://github.com/user-attachments/assets/9f6b2425-3f16-4212-89f2-04c89d21a70f" />
+
 
 
 
