@@ -18,4 +18,11 @@ Consider a scenario where you need to store a list of student scores. If a stude
 Using a primitive int is not a good choice because int must have a value and cannot be null.  
 
 Primitive values (like int, char, or boolean) are single, simple values that are highly efficient to store and use. However, they lack the ability to group related data or have associated behaviors. Objects, on the other hand, are designed to model complex entities. They may have more memory overhead than primitives, but the benefits of encapsulation, inheritance, and polymorphism make them essential for building robust, scalable, and manageable applications.  
-5751
+- In the stack, memory is automatically freed once the method execution is complete. In the heap, objects remain until they are no longer referenced, at which point the garbage collector reclaims the memory.  
+
+🔹 Why this correction?  
+
+Stack: Memory is managed automatically (frames are popped off when a method finishes).  
+
+Heap: Memory is not freed immediately after use; the Garbage Collector (GC) cleans up objects that are no longer reachable.  
+
