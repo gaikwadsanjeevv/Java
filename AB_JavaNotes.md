@@ -34,4 +34,7 @@ public class Main {
 
 ## Importing the Scanner Class
 ```java
-import java.util.Scanner;
+import java.util.Scanner; ```
+
+
+
