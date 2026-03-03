@@ -17,7 +17,7 @@ A hash table is a data structure that stores data in an array-like format. Each 
 - Dynamic Sizing: Many Java classes start with a default size (often 16) and resize dynamically as needed to maintain efficiency.  
 
 #### Operation	Description	Time Complexity  
-Insertion --> Uses the hash function to determine the index and inserts the element.	--> O(1) (amortized)  
+Insertion → Uses the hash function to determine the index and inserts the element.→ O(1) (amortized)  
 Search --> 	Computes bucket index and retrieves element. --> 	O(1) (amortized)  
 Collision --> 	If a bucket is occupied, a resolution method is applied.	--> O(n) worst-case  
  
