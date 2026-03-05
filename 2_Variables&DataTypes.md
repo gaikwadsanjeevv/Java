@@ -226,7 +226,6 @@ public class BankAccount {
 //The Reserved Keywords — All 53
 
 You cannot use any of these as variable names. The compiler blocks them all:
-```
 abstract   assert     boolean    break      byte
 case       catch      char       class      const
 continue   default    do         double     else
