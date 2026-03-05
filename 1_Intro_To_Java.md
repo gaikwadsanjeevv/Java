@@ -17,7 +17,7 @@ file must be saved as `HelloWorld.java`
 
 > ### ⚠️ Rule:Java is case-sensitive. `HelloWorld` ≠ `helloworld`  
 
----
+----------------------------------------------------------------------------------
 
 ### `public static void main(String[] args)`  
 
@@ -32,7 +32,7 @@ Let's break each word:
 | `void`   | `main` doesn't return anything |  
 | `main`   | The name JVM looks for — hardcoded convention |  
 | `String[] args` | Command line arguments passed as an array of Strings |  
- 
+---------------------------------------------------------------------------------- 
 //`System.out.println("Hello, World!")`  
 
 Break it down:  
@@ -45,7 +45,7 @@ Difference between print methods:
 System out.print("Hello");      // prints, NO new line  
 System.out.println("Hello");    // prints + moves to next line  
 System.out.printf("Age: %d", 25); // formatted print like C  
-
+----------------------------------------------------------------------------------
 //How Java Runs — Behind the Scenes
 
 Step 1:  You write  →  HelloWorld.java       (Source code)
@@ -57,7 +57,7 @@ java HelloWorld          ← runs (no .class extension here)
 
 Why Bytecode? Java's motto is "Write Once, Run Anywhere". Bytecode runs on any OS that has a JVM
  — Windows, Mac, Linux.
-
+----------------------------------------------------------------------------------
 //Using args — Command Line Arguments
 public class HelloWorld {
     public static void main(String[] args) {
@@ -86,6 +86,7 @@ public class HelloWorld {
         System.out.println("Hello, World!");
     }
 }
+----------------------------------------------------------------------------------
 🔥 Tricky Questions
 Q1. Can we have multiple main methods in Java?
 // Yes! — through method OVERLOADING. But JVM only calls main(String[] args)
@@ -97,6 +98,7 @@ public class Test {
         System.out.println("This won't be called by JVM");
     }
 }
+----------------------------------------------------------------------------------
 Q2. What if we remove static from main?
 public class Test {
     public void main(String[] args) {  // no static
@@ -105,12 +107,12 @@ public class Test {
 }
 // Output: Error — Main method is not static
 // JVM cannot call it without creating an object
-
+----------------------------------------------------------------------------------
 Q3. Can main be private?
 private static void main(String[] args) { }
 // Compiles fine but JVM throws:
 // Error: Main method not found — must be declared public
-
+----------------------------------------------------------------------------------
 Q4. What does this print?
 public class Test {
     public static void main(String[] args) {
@@ -119,11 +121,9 @@ public class Test {
         System.out.println("C");
     }
 }
-```
-```
 A
 BC        ← B has no newline, so C joins on same line
-
+----------------------------------------------------------------------------------
 Q5. Can a Java file have multiple classes?
 // Yes — but only ONE class can be public, and filename must match that public class
 class A {  }          // allowed — no public
