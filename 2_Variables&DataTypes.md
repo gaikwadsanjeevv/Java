@@ -12,7 +12,7 @@ Think of RAM like a huge shelf with millions of tiny boxes. Each box can hold on
 int age = 25;
 // "Give me a box, label it 'age', put 25 in it"
 
-## What Happens in Memory — For Real
+// What Happens in Memory — For Real
 
 When you write `int age = 25`, Java does three things physically:
 
@@ -43,7 +43,7 @@ Java hides this completely. The JVM manages memory for you. This is why Java has
 — you simply can't access raw addresses.
 
 ----------------------------------------------------------------------------------
-Three Things Every Variable Must Have
+//Three Things Every Variable Must Have
 Every single variable in Java has exactly three things — no exceptions:
 Type → what kind of data it holds (int, String, double, boolean...)
 Name → what you call it in your code
@@ -59,7 +59,7 @@ age = "twenty five";   // ❌ ERROR — type was int, can't store String now
 This is different from Python where you can do age = 25 then age = "hello" freely. Java says no — pick a type and stick with it.
  This catches a whole class of bugs at compile time before your code even runs.
 ----------------------------------------------------------------------------------
-Declaration vs Initialization vs Both
+// Declaration vs Initialization vs Both
 These three terms come up constantly in interviews. Know the difference cold.
 Declaration — you're telling Java "this variable exists, this is its type, this is its name.
 " No value yet. Just creating the labeled box.
@@ -127,7 +127,8 @@ A fun interview trick — goto is a reserved keyword in Java even though Java do
 It was reserved to prevent confusion for C programmers switching to Java.
 int goto = 5;    // ❌ ERROR — reserved keyword, even though Java has no goto
 ----------------------------------------------------------------------------------
-Java is Case Sensitive — Always
+//JAVA IS CASE SENSITIVE - ALWAYS
+
 This burns beginners constantly.
 int age = 25;
 int Age = 30;
@@ -142,7 +143,7 @@ System.out.println(AGE);  // 35
 System.out.println(aGe);  // 40
 Real world bug this causes — you declare userName but then type username later. Compiler screams. Happens to everyone at least once.
 ----------------------------------------------------------------------------------
-Reassignment — Value Changes, Type Never Does
+// REASSIGNMENT- Value Changes, Type Never Does
 int score = 0;
 System.out.println(score);  // 0
 
