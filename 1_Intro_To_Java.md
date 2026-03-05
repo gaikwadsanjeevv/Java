@@ -1,9 +1,11 @@
-# Java Introduction (Complete)  
 ```
+# Java Introduction (Complete)  
 1.1 What is Java? History & Features
 What is Java?
-Java is a high-level, object-oriented, platform-independent programming language developed by James Gosling at Sun Microsystems in 1995. Later acquired by Oracle in 2010.
-Originally designed for interactive television and embedded systems. Ended up becoming one of the most widely used languages in the world — used in Android apps, enterprise backends, banking systems, and more.
+Java is a high-level, object-oriented, platform-independent programming language developed by
+ James Gosling at Sun Microsystems in 1995. Later acquired by Oracle in 2010.
+Originally designed for interactive television and embedded systems.
+Ended up becoming one of the most widely used languages in the world — used in Android apps, enterprise backends, banking systems, and more.
 
 Official motto: "Write Once, Run Anywhere" (WORA)
 
@@ -20,44 +22,34 @@ Follows OOP principles: Encapsulation, Inheritance, Polymorphism, Abstraction
 int age = "twenty";   // ❌ ERROR — can't assign String to int
 int age = 20;         // ✅ correct
 // Java checks types at compile time — catches errors early
-```
 
-**4. Automatic Memory Management**
-```
+4. Automatic Memory Management
 Java has a Garbage Collector
 You don't manually allocate/free memory like C/C++
 JVM automatically reclaims unused objects
-```
 
-**5. Multithreading Built-in**
-```
+5. Multithreading Built-in
 Java has native support for multithreading
 Can run multiple tasks simultaneously
 Built into the language with Thread class and java.util.concurrent
-```
 
-**6. Robust & Secure**
-```
+6. Robust & Secure
 Strong exception handling
 No pointers (prevents memory corruption)
 Bytecode verifier checks code before execution
 Security manager controls runtime permissions
-```
 
-**7. Rich Standard Library**
-```
+7. Rich Standard Library
+
 java.lang   → core (String, Math, System, Thread)
 java.util   → Collections, Scanner, Date
 java.io     → File handling, streams
 java.net    → Networking
 java.sql    → Database connectivity
-```
 
-**8. High Performance (via JIT)**
-```
+8. High Performance (via JIT)
 JIT Compiler converts hot bytecode to native machine code at runtime
 Java gets FASTER the longer it runs
-```
 
 ---
 
@@ -68,7 +60,6 @@ These three are the **most confused** concepts for beginners. Let's kill the con
 ---
 
 ### The Relationship
-```
 ┌─────────────────────────────────────┐
 │               JDK                   │
 │  (Java Development Kit)             │
@@ -87,7 +78,6 @@ These three are the **most confused** concepts for beginners. Let's kill the con
 │  + Debugger (jdb)                   │
 │  + Other dev tools                  │
 └─────────────────────────────────────┘
-```
 
 ---
 
@@ -98,21 +88,17 @@ These three are the **most confused** concepts for beginners. Let's kill the con
 - Provides **platform independence** — same bytecode runs on any OS because each OS has its own JVM implementation
 - Handles **memory management, garbage collection, security**
 - JVM is **platform dependent** (different JVM for Windows, Mac, Linux) but bytecode is platform independent
-```
 Java Source Code (.java)
          ↓  javac compiles
     Bytecode (.class)
          ↓  JVM executes
    Machine Code / Output
-```
 
-**JVM Internal Components:**
-```
+//JVM Internal Components:
 ClassLoader Subsystem   → loads .class files into memory
 Runtime Data Areas      → Heap, Stack, Method Area, PC Register
 Execution Engine        → Interpreter + JIT Compiler + GC
 Native Method Interface → connects to native C/C++ libraries
-```
 
 ---
 
@@ -122,10 +108,8 @@ Native Method Interface → connects to native C/C++ libraries
 - = **JVM + Core Class Libraries** (java.lang, java.util, etc.)
 - If someone just wants to **run** Java apps (not develop), they install JRE
 - Does NOT include compiler (`javac`)
-```
 User wants to RUN a Java app  →  needs JRE
 Developer wants to BUILD apps →  needs JDK
-```
 
 ---
 
@@ -1078,5 +1062,5 @@ Java uses Egyptian brace style — opening brace on same line
 4 spaces per indentation level
 Names should be self-documenting — code should read like English
 Conventions aren't enforced by compiler but are enforced by every real-world team
-
 ```
+
