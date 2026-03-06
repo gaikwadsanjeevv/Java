@@ -383,5 +383,485 @@ var (Java 10+) is type inference — compiler figures out the type, but it's sti
 var is not a keyword — it's a context-sensitive identifier (common interview trick question).
 Local variables have no default values — must initialize before use. Instance variables do get defaults.
 ----------------------------------------------------------------------------------
+2.2 Primitive Data Types
 
+// THE CORE IDEA
+Java has two categories of data types — primitive and non-primitive (reference types).
+Primitive types are the most basic building blocks. They are not objects. They don't have methods.
+They live directly on the Stack memory. They are fast, lightweight, and fixed in size.
+Java has exactly 8 primitive types — no more, no less. Every other type in Java is built on top of these 8.
+Real world connection — when you're building a food delivery app:
+int deliveryTimeMinutes = 35;        // whole number — minutes
+double distanceKm = 4.7;             // decimal number — kilometers
+boolean isRestaurantOpen = true;     // yes/no — open or closed
+char orderStatus = 'P';              // single character — P for Pending
+
+All four of these are primitives. Simple, direct, fast.
+
+----------------------------------------------------------------------------------
+THE 8 PRIMITIVE TYPES — OVERVIEW
+Before going deep into each, here's the full picture.
+Instead of a table, think of it like a family tree organized by what they store:
+Whole Numbers (integers) — 4 types:
+byte → smallest → 1 byte → range -128 to 127
+short → small → 2 bytes → range -32,768 to 32,767
+int → default → 4 bytes → range -2.1 billion to 2.1 billion
+long → large → 8 bytes → range -9.2 quintillion to 9.2 quintillion
+Decimal Numbers (floating point) — 2 types:
+float → less precise → 4 bytes → ~7 decimal digits of precision
+double → more precise → 8 bytes → ~15 decimal digits of precision
+Single Character — 1 type:
+char → 2 bytes → stores one Unicode character
+True/False — 1 type:
+boolean → stores only true or false → size not precisely defined by JVM
+----------------------------------------------------------------------------------
+// INT — THE DEFAULT WHOLE NUMBER
+int is the workhorse of Java. When you need a whole number and you're not sure which type to use — use int. Java itself defaults to int for integer literals.
+Size is 4 bytes = 32 bits.
+Range is -2,147,483,648 to 2,147,483,647 (roughly -2.1 billion to +2.1 billion).
+Why that exact range? Because 32 bits, with 1 bit reserved for the sign (positive/negative), gives you 2^31 values in each direction.
+
+int age = 25;
+int salary = 75000;
+int population = 1400000000;   // 1.4 billion — fits in int
+int maxInt = Integer.MAX_VALUE; // 2147483647
+int minInt = Integer.MIN_VALUE; // -2147483648
+
+System.out.println(Integer.MAX_VALUE);  // 2147483647
+System.out.println(Integer.MIN_VALUE);  // -2147483648
+
+Real world — most counters, ages, quantities, IDs, scores all fit comfortably in int. It's your go-to for whole numbers.
+----------------------------------------------------------------------------------
+INTEGER OVERFLOW — THE SILENT KILLER
+This is one of the most important concepts and a classic interview question. What happens when you go beyond int's range?
+Java doesn't throw an error. It doesn't crash. It wraps around silently.
+int maxValue = Integer.MAX_VALUE;  // 2147483647
+System.out.println(maxValue);      // 2147483647
+System.out.println(maxValue + 1);  // -2147483648  ← WRAPS AROUND!
+
+Why? Think of it like a car's odometer. When it hits 999999, the next number is 000000.
+Same thing here — when int hits its max (all 32 bits are 1), adding 1 flips all bits and you get the minimum value.
+This is called integer overflow and it has caused real disasters in software history.
+ The Ariane 5 rocket explosion in 1996 was caused by a numeric overflow. Boeing's 787 had a bug where the electrical generators would lose power after 248 days due to integer overflow.
+// Real world danger — calculating file size
+int fileSizeBytes = 3 * 1024 * 1024 * 1024;  // trying to store 3GB in bytes
+// 3 * 1024 * 1024 * 1024 = 3,221,225,472
+// But int max is 2,147,483,647
+// Result: -1073741824  ← WRONG! Overflowed silently
+System.out.println(fileSizeBytes);  // -1073741824
+
+// Fix — use long
+long fileSizeBytesCorrect = 3L * 1024 * 1024 * 1024;
+System.out.println(fileSizeBytesCorrect);  // 3221225472 ✅
+----------------------------------------------------------------------------------
+LONG — WHEN INT IS NOT ENOUGH
+Use long when your number exceeds int's ~2.1 billion limit.
+Size is 8 bytes = 64 bits.
+Range is -9,223,372,036,854,775,808 to 9,223,372,036,854,775,807 (roughly ±9.2 quintillion).
+Critical rule — when assigning a long literal larger than int's range, you MUST add L suffix. Without it, Java reads the number as int first, overflows it, then stores the overflowed value.
+
+long population = 8000000000L;    // 8 billion — needs L suffix
+long distanceToSun = 149597870700L; // 149 billion meters — needs L
+long normalNumber = 1000;          // ✅ no L needed — fits in int, auto-promoted to long
+
+// Danger without L:
+long wrong = 8000000000;   // ❌ COMPILE ERROR — Java reads 8000000000 as int first
+                           // 8000000000 doesn't fit in int → compile error
+
+long alsoWrong = 3000000000;  // ❌ same issue
+long correct = 3000000000L;   // ✅ L tells Java this is a long literal
+
+Real world uses of long — timestamps (milliseconds since 1970), database primary keys in large systems, file sizes in bytes, phone numbers in some countries, national ID numbers.
+long currentTimeMillis = System.currentTimeMillis();  // milliseconds since Jan 1, 1970
+System.out.println(currentTimeMillis);  // something like 1708934400000
+
+long phoneNumber = 919876543210L;  // Indian phone with country code
+long orderId = 1234567890123L;     // large e-commerce order ID
+----------------------------------------------------------------------------------
+// BYTE — THE TINY ONE
+Size is 1 byte = 8 bits.
+Range is -128 to 127.
+You'll rarely declare byte variables directly in application code. It's mainly used for:
+Raw binary data — reading files, network streams, images
+Memory optimization when storing millions of small values in arrays
+Working with protocols that specify exact byte sizes
+byte age = 25;          // ✅ 25 fits in byte
+byte score = 100;       // ✅ 100 fits in byte
+byte tooBig = 200;      // ❌ COMPILE ERROR — 200 exceeds byte max of 127
+
+// Common real use — raw data
+byte[] imageData = new byte[1024 * 1024];  // 1MB buffer for image
+byte[] networkPacket = new byte[512];       // network packet buffer
+
+// Byte overflow example
+byte b = 127;
+b++;
+System.out.println(b);  // -128 — wraps around just like int
+----------------------------------------------------------------------------------
+SHORT — THE FORGOTTEN ONE
+Size is 2 bytes = 16 bits.
+Range is -32,768 to 32,767.
+Honest truth — short is almost never used in modern Java. It exists mainly for legacy code, interfacing with certain hardware, and protocols that specifically use 16-bit values. The memory savings over int are so small in most applications that it's not worth it.
+
+short year = 2024;         // ✅ fits in short
+short temperature = -40;   // ✅ fits in short
+short tooBig = 40000;      // ❌ COMPILE ERROR — exceeds short max of 32767
+----------------------------------------------------------------------------------
+// DOUBLE — THE DEFAULT DECIMAL
+double is to decimal numbers what int is to whole numbers — the default choice.
+Size is 8 bytes = 64 bits.
+Precision is approximately 15-16 significant decimal digits.
+Java defaults all decimal literals to double. So 3.14 in your code is automatically a double.
+double price = 499.99;
+double pi = 3.14159265358979;
+double gstRate = 0.18;
+double salary = 75000.50;
+
+// Java defaults decimal literals to double
+double x = 3.14;    // ✅ 3.14 is a double literal by default
+
+Real world — prices, distances, rates, percentages, coordinates, scientific calculations.
+Basically any decimal number in business or science.
+// E-commerce calculation
+double itemPrice = 1299.00;
+double discount = 0.10;        // 10% discount
+double discountAmount = itemPrice * discount;   // 129.9
+double finalPrice = itemPrice - discountAmount; // 1169.1
+double gst = finalPrice * 0.18;                // 210.438
+double totalPayable = finalPrice + gst;        // 1379.538
+----------------------------------------------------------------------------------
+THE FLOATING POINT TRAP — CRITICAL FOR INTERVIEWS
+This is the single most important thing to know about doubles and it trips up even experienced developers.
+double a = 0.1;
+double b = 0.2;
+System.out.println(a + b);         // NOT 0.3 — prints 0.30000000000000004
+System.out.println(a + b == 0.3);  // false ← SHOCKING but true
+
+Why? Because computers store numbers in binary. And 0.1 cannot be represented exactly in binary — just like 1/3 cannot be represented exactly in decimal (0.333333...). So 0.1 in binary is actually 0.1000000000000000055511151231257827021181583404541015625...
+This means never use double for money calculations in production. This is a real bug that has caused financial calculation errors in banking software.
+The fix is BigDecimal:
+import java.math.BigDecimal;
+
+BigDecimal price = new BigDecimal("0.1");    // NOTE: use String constructor
+BigDecimal tax = new BigDecimal("0.2");
+BigDecimal total = price.add(tax);
+System.out.println(total);  // 0.3  ✅ exact
+
+For interview: if someone asks "how do you handle money in Java?" — answer is always BigDecimal, never double or float.
+----------------------------------------------------------------------------------
+FLOAT — LESS PRECISE DECIMAL
+Size is 4 bytes = 32 bits.
+Precision is approximately 6-7 significant decimal digits — roughly half of double.
+You MUST add f or F suffix to float literals. Without it, Java treats the decimal as double and you get a compile error trying to store it in a float.
+float temperature = 36.6f;    // ✅ f suffix tells Java this is float
+float discount = 0.15f;       // ✅
+float price = 499.99;         // ❌ COMPILE ERROR — 499.99 is double, can't auto-store in float
+float price = 499.99f;        // ✅
+
+// Precision difference
+float f = 1.23456789f;
+double d = 1.23456789;
+System.out.println(f);   // 1.2345679  ← rounded at 7 digits
+System.out.println(d);   // 1.23456789 ← full precision
+
+When to use float vs double:
+float → graphics/game development (OpenGL coordinates), sensor data, situations where memory is
+severely constrained and precision loss is acceptable
+double → everything else — scientific, financial (actually BigDecimal), general purpose
+Most professional Java code uses double exclusively and avoids float.
+
+----------------------------------------------------------------------------------
+CHAR — THE CHARACTER TYPE
+char stores a single character. What makes Java's char unique is that it's 2 bytes (16 bits), not 1 byte like in C/C++. This is because Java uses Unicode (UTF-16) to support characters from all languages worldwide — English, Hindi, Chinese, Arabic, emoji.
+Range is 0 to 65,535 (unsigned — no negative values).
+Character literals use single quotes. Strings use double quotes. Never confuse them.
+
+char grade = 'A';
+char symbol = '@';
+char digit = '5';     // this is the CHARACTER '5', not the NUMBER 5
+char space = ' ';
+
+// Unicode character
+char rupee = '₹';     // Indian rupee symbol
+char omega = 'Ω';     // Greek letter
+char heart = '♥';     // heart symbol
+
+// char is actually stored as an integer (Unicode value)
+char c = 'A';
+System.out.println(c);           // A
+System.out.println((int) c);     // 65  ← Unicode value of 'A'
+
+// You can even do arithmetic on chars
+char next = (char) ('A' + 1);
+System.out.println(next);        // B
+
+// Iterating alphabet
+for (char ch = 'a'; ch <= 'z'; ch++) {
+    System.out.print(ch + " ");  // a b c d e f ... z
+}
+
+Important Unicode values to memorize for interviews:
+'A' is 65, 'Z' is 90
+'a' is 97, 'z' is 122
+'0' is 48, '9' is 57
+These come up constantly in string manipulation problems on LeetCode.
+
+// Convert char digit to int value — classic interview trick
+char digitChar = '7';
+int digitValue = digitChar - '0';  // 55 - 48 = 7
+System.out.println(digitValue);    // 7
+
+// Convert lowercase to uppercase
+char lower = 'g';
+char upper = (char) (lower - 32);   // 'g'(103) - 32 = 71 = 'G'
+System.out.println(upper);          // G
+----------------------------------------------------------------------------------
+BOOLEAN — TRUE OR FALSE, NOTHING ELSE
+boolean stores exactly one of two values — true or false. That's it. No 0 or 1 like in C. No null. No "yes"/"no". Just true or false.
+The JVM spec doesn't define an exact size for boolean. In practice, individual booleans are usually stored as a full int (4 bytes) for alignment reasons, but boolean[] arrays use 1 byte per element.
+
+boolean isLoggedIn = true;
+boolean hasPremium = false;
+boolean isEligible = age >= 18;          // expression result
+boolean isWeekend = day.equals("Saturday") || day.equals("Sunday");
+
+// Real world — feature flags in apps
+boolean isDarkModeEnabled = true;
+boolean isPaymentGatewayLive = false;
+boolean showNewDashboard = userGroup.equals("beta");
+
+You cannot assign numbers to boolean in Java — unlike C where 0 is false and anything else is true:
+boolean b = 1;      // ❌ COMPILE ERROR — Java doesn't allow this
+boolean b = true;   // ✅ only way
+int x = 5;
+if (x) { }          // ❌ COMPILE ERROR — x is not boolean
+if (x != 0) { }     // ✅ this is how Java does it
+```
+
+This is actually a safety feature — in C, `if (x = 5)` (assignment instead of comparison) compiles and always evaluates to true. In Java the compiler catches it.
+
+---
+
+## TYPE CASTING — CONVERTING BETWEEN PRIMITIVES
+
+Sometimes you need to convert one primitive type to another. Java handles this in two ways.
+
+**Widening Casting (Automatic)** — going from smaller to larger type. Java does this automatically, no data loss possible.
+```
+byte → short → int → long → float → double
+
+int myInt = 100;
+long myLong = myInt;      // ✅ automatic — int to long, no data loss
+double myDouble = myInt;  // ✅ automatic — int to double, no data loss
+float myFloat = myInt;    // ✅ automatic — int to float
+
+System.out.println(myLong);    // 100
+System.out.println(myDouble);  // 100.0
+
+Narrowing Casting (Manual) — going from larger to smaller type. You must explicitly cast. Data loss may occur — Java warns you by requiring explicit syntax.
+double price = 9.99;
+int truncated = (int) price;   // manual cast — decimal part chopped off
+System.out.println(truncated); // 9  ← 0.99 is GONE, not rounded
+
+long bigNumber = 1234567890123L;
+int smallNumber = (int) bigNumber;  // manual cast — data loss
+System.out.println(smallNumber);   // 1912276171  ← completely different number!
+
+double d = 3.99;
+int i = (int) d;   // truncates, does NOT round
+System.out.println(i);  // 3  ← not 4
+
+Important — casting truncates, it does NOT round. (int) 3.99 gives 3, not 4. This trips people up in interviews.
+// If you want rounding, use Math.round()
+double d = 3.99;
+long rounded = Math.round(d);   // 4 ✅
+System.out.println(rounded);
+----------------------------------------------------------------------------------
+DEFAULT VALUES — PRIMITIVES AS INSTANCE VARIABLES
+When primitives are instance variables (inside a class, outside methods), Java assigns them default values automatically. When they're local variables (inside a method), NO default — you must initialize.
+Instance variable defaults:
+byte → 0
+short → 0
+int → 0
+long → 0L
+float → 0.0f
+double → 0.0
+char → '\u0000' (null character)
+boolean → false
+
+public class Student {
+    int marks;        // default 0
+    double gpa;       // default 0.0
+    boolean passed;   // default false
+    char grade;       // default '\u0000'
+
+    public static void main(String[] args) {
+        Student s = new Student();
+        System.out.println(s.marks);   // 0
+        System.out.println(s.gpa);     // 0.0
+        System.out.println(s.passed);  // false
+        System.out.println(s.grade);   // (blank — null character)
+    }
+}
+----------------------------------------------------------------------------------
+//WRAPPER CLASSES — PRIMITIVES AS OBJECTS
+Every primitive has a corresponding Wrapper class in Java. This matters because Java's Collections (ArrayList, HashMap etc.)
+cannot store primitives — they need objects.
+int → Integer
+double → Double
+boolean → Boolean
+char → Character
+byte → Byte
+short → Short
+long → Long
+float → Float
+
+// Can't do this — ArrayList needs objects not primitives
+ArrayList<int> numbers = new ArrayList<int>();  // ❌ COMPILE ERROR
+
+// Use wrapper class instead
+ArrayList<Integer> numbers = new ArrayList<Integer>();  // ✅
+numbers.add(10);   // 10 is auto-boxed to Integer object
+
+Autoboxing — Java automatically converts primitive to wrapper object when needed.
+Unboxing — Java automatically converts wrapper object back to primitive when needed.
+
+Integer obj = 42;    // autoboxing — int 42 → Integer object automatically
+int val = obj;       // unboxing — Integer object → int automatically
+
+// Behind the scenes Java is doing:
+Integer obj = Integer.valueOf(42);   // autoboxing
+int val = obj.intValue();            // unboxing
+----------------------------------------------------------------------------------
+Where Autoboxing Is Required (Very Important)
+1️⃣ Java Collections
+
+Collections store objects, not primitives.
+
+Example with ArrayList
+
+import java.util.ArrayList;
+
+public class Example {
+
+    public static void main(String[] args) {
+
+        ArrayList<Integer> list = new ArrayList<>();
+
+        list.add(10);  // Autoboxing: int -> Integer
+        list.add(20);
+
+        int value = list.get(0);  // Unboxing: Integer -> int
+
+        System.out.println(value);
+    }
+}
+
+Without autoboxing:
+list.add(Integer.valueOf(10));
+int value = list.get(0).intValue();
+Autoboxing makes it clean and readable.
+
+Integer obj = 42;    // autoboxing — int 42 → Integer object automatically
+int val = obj;       // unboxing — Integer object → int automatically
+
+// Behind the scenes Java is doing:
+Integer obj = Integer.valueOf(42);   // autoboxing
+int val = obj.intValue();            // unboxing
+
+Useful methods on wrapper classes:
+// Parsing strings to numbers — extremely common in real code
+int age = Integer.parseInt("25");         // String "25" → int 25
+double price = Double.parseDouble("9.99"); // String "9.99" → double 9.99
+boolean b = Boolean.parseBoolean("true"); // String "true" → boolean true
+
+// Number to string
+String s = Integer.toString(42);   // int 42 → String "42"
+String s2 = String.valueOf(42);    // same thing
+
+// Useful constants
+System.out.println(Integer.MAX_VALUE);   // 2147483647
+System.out.println(Integer.MIN_VALUE);   // -2147483648
+System.out.println(Double.MAX_VALUE);    // 1.7976931348623157E308
+----------------------------------------------------------------------------------
+🔥 TRICKY INTERVIEW QUESTIONS
+Q1. What is the output?
+int a = Integer.MAX_VALUE;
+int b = a + 1;
+System.out.println(b);
+Output is -2147483648. Integer overflow — MAX_VALUE + 1 wraps to MIN_VALUE. Classic trap.
+----------------------------------------------------------------------------------
+Q2. What is the output?
+double x = 0.1 + 0.2;
+System.out.println(x);
+System.out.println(x == 0.3);
+Output is 0.30000000000000004 and false. Floating point precision issue. 0.1 and 0.2 can't be represented exactly in binary.
+Their sum has a tiny error. This is why you never use == to compare doubles.
+
+Correct way to compare doubles:
+double x = 0.1 + 0.2;
+double epsilon = 0.0000001;
+System.out.println(Math.abs(x - 0.3) < epsilon);  // true ✅
+----------------------------------------------------------------------------------
+Q3. What is the output?
+int x = 5;
+double y = x;        // widening — automatic
+int z = (int) 9.99;  // narrowing — manual cast
+System.out.println(y);  // 5.0
+System.out.println(z);  // 9 — truncated, NOT rounded
+
+Output is 5.0 and 9. The decimal cast truncates, does not round.
+----------------------------------------------------------------------------------
+Q4. Will this compile?
+byte b = 127;
+b = b + 1;
+
+No — compile error. Here's why — b + 1 is evaluated as int + int = int. You can't store int back into byte without explicit cast. Even though the value 128 would just barely overflow a byte, the compiler doesn't evaluate the expression — it just sees "int result going into byte" and refuses.
+byte b = 127;
+b = (byte)(b + 1);  // ✅ explicit cast — compiles, result is -128 (overflow)
+b++;                // ✅ also works — ++ operator handles the cast internally
+----------------------------------------------------------------------------------
+Q5. What is the size of boolean in Java?
+Trick question — the Java specification does not define an exact size for boolean. The JVM spec says it depends on implementation. In most JVMs, a standalone boolean is stored as a 4-byte int for alignment. In a boolean array, each element is typically 1 byte. There is no guaranteed answer — the correct interview answer is "it is implementation dependent, not specified by the JVM spec."
+----------------------------------------------------------------------------------
+Q6. What is the output?
+char c = 'A';
+c = (char)(c + 1);
+System.out.println(c);  // B
+
+int x = 'A' + 1;
+System.out.println(x);  // 66
+
+System.out.println('A' + 1);   // 66 — int result
+System.out.println("" + 'A' + 1); // A1 — String concatenation
+System.out.println('A' + "" + 1); // A1 — String concatenation
+
+The last two are classic string concatenation traps. Once a String is in the expression, everything after is concatenated as string, not added as numbers.
+
+----------------------------------------------------------------------------------
+Q7. What is autoboxing and when can it cause problems?
+Autoboxing is automatic conversion between primitive and wrapper class. The problem — it can cause unexpected NullPointerException and performance issues.
+Integer count = null;   // wrapper can be null
+int value = count;      // ❌ NullPointerException — unboxing null throws exception
+
+// Performance trap
+for (int i = 0; i < 1000000; i++) {
+    Integer sum = 0;        // using Integer instead of int
+    sum = sum + i;          // each iteration: unbox sum, add i, autobox result
+}
+// Creates 1 million Integer objects unnecessarily — huge GC pressure
+// Always use int not Integer for local variables
+----------------------------------------------------------------------------------
+KEY TAKEAWAYS
+Java has exactly 8 primitive types — byte, short, int, long, float, double, char, boolean.
+int is the default for whole numbers, double is the default for decimals.
+Always add L suffix for long literals beyond int range, and f suffix for float literals.
+Integer overflow happens silently — no error, no warning, just wraps around. Real bugs have crashed rockets and caused financial errors.
+Never use double or float for money — use BigDecimal with String constructor.
+Casting truncates, it does NOT round. (int) 3.99 = 3, not 4.
+Widening casting (small to large) is automatic. Narrowing casting (large to small) needs explicit cast and may lose data.
+char in Java is 2 bytes (Unicode), not 1 byte like in C/C++. 'A' = 65, 'a' = 97, '0' = 48.
+boolean only accepts true or false — not 0/1 like in C.
+Every primitive has a wrapper class (int→Integer etc.) needed for Collections and generics.
+Autoboxing is automatic but can cause NullPointerException if wrapper is null, and performance issues if overused in loops.
 ````
