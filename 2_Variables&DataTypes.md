@@ -864,4 +864,70 @@ char in Java is 2 bytes (Unicode), not 1 byte like in C/C++. 'A' = 65, 'a' = 97,
 boolean only accepts true or false — not 0/1 like in C.
 Every primitive has a wrapper class (int→Integer etc.) needed for Collections and generics.
 Autoboxing is automatic but can cause NullPointerException if wrapper is null, and performance issues if overused in loops.
+----------------------------------------------------------------------------------
+2.3 Type Casting — Converting Between Primitive Types
+THE CORE IDEA:
+Imagine you're building a shopping app. You have a price stored as double (because prices have decimals),
+but at some point you need to display just the whole number part — no decimals.
+You need to convert a double into an int. That conversion is called type casting.
+Type casting means taking a value of one data type and converting it to another data type.
+Java handles this in two completely different ways depending on which direction you're going —
+are you going to a bigger type or a smaller type? That single question determines everything.
+
+int myInt = 100;
+double myDouble = myInt;    // going bigger — automatic, Java handles it
+int back = (int) myDouble;  // going smaller — manual, you handle it
+```
+
+----------------------------------------------------------------------------------
+
+## TWO TYPES OF CASTING
+
+Think of it like water and containers.
+
+If you pour water from a small glass into a big bucket — easy, nothing spills, no effort needed. That's **widening**.
+
+If you pour water from a big bucket into a small glass — you have to be careful, some water will spill. 
+That's **narrowing**. The spilled water is the lost data.
+
+----------------------------------------------------------------------------------
+
+## WIDENING CASTING — AUTOMATIC
+
+Widening means going from a **smaller type to a larger type**. Java does this **automatically** with no syntax needed. No data is lost because the bigger type can fully contain everything the smaller type holds.
+
+The widening hierarchy goes in one direction only:
+
+byte → short → int → long → float → double
+
+Each arrow means "can be automatically widened to". Left is smaller, right is bigger.
+byte b = 42;
+short s = b;      // byte → short, automatic
+int i = s;        // short → int, automatic
+long l = i;       // int → long, automatic
+float f = l;      // long → float, automatic
+double d = f;     // float → double, automatic
+
+System.out.println(b);  // 42
+System.out.println(s);  // 42
+System.out.println(i);  // 42
+System.out.println(l);  // 42
+System.out.println(f);  // 42.0
+System.out.println(d);  // 42.0
+Real world example — you're tracking scores in a game. Initially you used int but later
+realized scores can go beyond 2 billion. You switch to long. All existing int values automatically 
+widen to long with no changes needed anywhere.
+
+int currentScore = 150000;
+long highScore = currentScore;   // automatic widening — safe, no data loss
+System.out.println(highScore);   // 150000
+
+THE SNEAKY PRECISION LOSS IN WIDENING
+Here's something almost nobody talks about but interviewers love — 
+widening can still cause precision loss when going from long to float or long to double.
+Wait, how? If widening is safe, how can there be precision loss?
+Because float is 4 bytes and long is 8 bytes. Even though float's range is larger than long's range, float
+only has about 7 digits of precision. A long can have up to 19 digits. So large long values lose precision when widened to float.
+
+
 ````
