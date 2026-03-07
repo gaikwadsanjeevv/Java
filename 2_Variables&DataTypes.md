@@ -1481,4 +1481,490 @@ public class Test {
 
 ---
 
+# 2.5 — Constants & the `final` Keyword in Java
+
+> 📘 *Reference: Java The Complete Reference — Herbert Schildt*
+
+---
+
+## 📌 What is `final`?
+
+The `final` keyword in Java means **"this cannot be changed"**.
+
+But what "cannot be changed" means depends on WHERE you use it:
+
+| Used on | Meaning |
+|---------|---------|
+| **Variable** | Value cannot be reassigned (constant) |
+| **Method** | Method cannot be overridden |
+| **Class** | Class cannot be extended (inherited) |
+
+We cover all three in depth here. The variable usage is most relevant to this section (2.5 — Constants).
+
+---
+
+## 🔢 1. `final` Variables — Constants
+
+A `final` variable can only be **assigned once**. After that, any attempt to change it causes a **compile error**.
+
+### Basic Example
+
+```java
+public class FinalDemo {
+    public static void main(String[] args) {
+
+        final int MAX_SIZE = 100;
+        System.out.println(MAX_SIZE);  // 100
+
+        MAX_SIZE = 200;  // ❌ COMPILE ERROR: cannot assign a value to final variable
+    }
+}
+```
+
+---
+
+### Naming Convention
+
+Constants in Java are written in **UPPER_SNAKE_CASE**:
+
+```java
+final int MAX_SPEED = 120;
+final double PI = 3.14159;
+final String APP_NAME = "MyApp";
+```
+
+This is a universal Java convention (followed in all standard libraries too — e.g., `Integer.MAX_VALUE`).
+
+---
+
+## 📦 Types of `final` Variables
+
+### 1.1 Final Local Variable
+
+Declared inside a method. Must be initialized before use.
+
+```java
+public class FinalLocal {
+    public static void main(String[] args) {
+
+        final int x = 50;
+        // x = 60;  ❌ ERROR
+
+        // Can declare without initializing — but must assign BEFORE use
+        final int y;
+        y = 100;   // ✅ first assignment is fine
+        // y = 200; ❌ second assignment is ERROR
+
+        System.out.println(x + y);  // 150
+    }
+}
+```
+
+> ✅ A `final` variable doesn't have to be initialized at declaration — but it **must be assigned exactly once** before being used.
+
+---
+
+### 1.2 Final Instance Variable (Blank Final)
+
+A `final` instance variable that is **not initialized at declaration** is called a **blank final variable**. It MUST be initialized inside every constructor.
+
+```java
+public class Circle {
+
+    final double radius;  // blank final — not initialized here
+
+    // Must be initialized in constructor
+    Circle(double radius) {
+        this.radius = radius;  // ✅
+    }
+
+    double area() {
+        return Math.PI * radius * radius;
+    }
+
+    public static void main(String[] args) {
+        Circle c = new Circle(5.0);
+        System.out.println("Area: " + c.area());  // Area: 78.53...
+        // c.radius = 10;  ❌ ERROR — cannot reassign
+    }
+}
+```
+
+---
+
+### 1.3 Final Static Variable — True Constants
+
+The most common form of constants — `static final` fields shared across all instances.
+
+```java
+public class MathConstants {
+
+    public static final double PI = 3.14159265358979;
+    public static final double E  = 2.71828182845904;
+    public static final int    MAX_ARRAY_SIZE = Integer.MAX_VALUE - 8;
+
+    public static void main(String[] args) {
+        System.out.println(MathConstants.PI);  // 3.14159265358979
+        System.out.println(MathConstants.E);   // 2.71828182845904
+    }
+}
+```
+
+This is exactly how Java's own constants work:
+- `Integer.MAX_VALUE` → `public static final int MAX_VALUE = 2147483647`
+- `Math.PI` → `public static final double PI = 3.14159...`
+
+---
+
+### 1.4 Final Reference Variable ⚠️ (Most Tricky!)
+
+When `final` is used on an **object reference**, the reference cannot point to a different object — but the **object's contents can still change**.
+
+```java
+import java.util.ArrayList;
+
+public class FinalReference {
+    public static void main(String[] args) {
+
+        final ArrayList<String> list = new ArrayList<>();
+
+        list.add("Java");      // ✅ modifying contents — allowed
+        list.add("Python");    // ✅ still allowed
+        System.out.println(list);  // [Java, Python]
+
+        // list = new ArrayList<>();  ❌ ERROR — cannot reassign the reference
+    }
+}
+```
+
+> 🔑 **Key Rule:** `final` on a reference = the **reference is constant**, not the **object it points to**.
+
+Another example:
+
+```java
+public class FinalObject {
+    public static void main(String[] args) {
+
+        final int[] arr = {1, 2, 3};
+
+        arr[0] = 99;    // ✅ changing element — allowed
+        System.out.println(arr[0]);  // 99
+
+        // arr = new int[]{4, 5, 6};  ❌ ERROR — cannot reassign arr
+    }
+}
+```
+
+---
+
+## 🔒 2. `final` Methods — Cannot Be Overridden
+
+When a method is declared `final`, subclasses **cannot override** it.
+
+```java
+public class Vehicle {
+
+    final void start() {
+        System.out.println("Vehicle starting...");
+    }
+}
+
+public class Car extends Vehicle {
+
+    // void start() { ... }  ❌ COMPILE ERROR — cannot override final method
+}
+```
+
+**Why use final methods?**
+- Security — prevent subclasses from changing critical behavior
+- Performance — JVM can inline final methods (micro-optimization)
+- Design — signal that this method's behavior is fixed by design
+
+---
+
+## 🏛️ 3. `final` Classes — Cannot Be Inherited
+
+A `final` class **cannot be subclassed**.
+
+```java
+public final class ImmutablePoint {
+    private final int x;
+    private final int y;
+
+    ImmutablePoint(int x, int y) {
+        this.x = x;
+        this.y = y;
+    }
+
+    public int getX() { return x; }
+    public int getY() { return y; }
+}
+
+// class Point3D extends ImmutablePoint { }  ❌ COMPILE ERROR
+```
+
+**Famous examples of final classes in Java:**
+- `String` — `public final class String`
+- `Integer`, `Double`, `Boolean` — all wrapper classes are `final`
+- `Math` — `public final class Math`
+
+**Why make a class final?**
+- Immutability — if all fields are final too, object is fully immutable
+- Security — nobody can override behavior via subclassing
+- Thread safety — immutable final classes are inherently thread-safe
+
+---
+
+## 🧊 Immutability with `final` — Full Example
+
+Combining `final` class + `final` fields = fully immutable object:
+
+```java
+public final class Student {
+
+    private final String name;
+    private final int rollNumber;
+    private final double gpa;
+
+    public Student(String name, int rollNumber, double gpa) {
+        this.name = name;
+        this.rollNumber = rollNumber;
+        this.gpa = gpa;
+    }
+
+    public String getName()     { return name; }
+    public int getRollNumber()  { return rollNumber; }
+    public double getGpa()      { return gpa; }
+
+    @Override
+    public String toString() {
+        return "Student{name='" + name + "', roll=" + rollNumber + ", gpa=" + gpa + "}";
+    }
+
+    public static void main(String[] args) {
+        Student s = new Student("Alice", 101, 9.2);
+        System.out.println(s);
+        // s.name = "Bob";  ❌ ERROR — field is final
+        // Can't extend Student either — class is final
+    }
+}
+```
+
+**Output:**
+```
+Student{name='Alice', roll=101, gpa=9.2}
+```
+
+---
+
+## 📊 `final` vs `static final` — Key Difference
+
+```java
+public class Comparison {
+
+    final int instanceConst = 10;          // each object has its own copy
+    static final int CLASS_CONST = 100;    // shared across ALL objects
+
+    public static void main(String[] args) {
+        Comparison obj1 = new Comparison();
+        Comparison obj2 = new Comparison();
+
+        // Both have instanceConst = 10 but stored separately in memory
+        // CLASS_CONST = 100 is ONE copy shared by all
+        System.out.println(CLASS_CONST);   // accessed without object
+    }
+}
+```
+
+| | `final` | `static final` |
+|---|---------|---------------|
+| Scope | Per object | Shared (class-level) |
+| Memory | Each instance | One copy |
+| Access | Via object | Via class name |
+| True constant? | Sort of | ✅ Yes — true constant |
+
+---
+
+## `final` with `try-catch` — Interesting Behavior
+
+```java
+public class FinalTryCatch {
+    public static void main(String[] args) {
+        final int x;
+        try {
+            x = Integer.parseInt("123");
+        } catch (Exception e) {
+            x = -1;  // ❌ ERROR — might be assigned twice if try succeeds then catch runs
+        }
+    }
+}
+```
+
+Fix using a helper:
+```java
+public class FinalTryCatch {
+    public static void main(String[] args) {
+        final int x;
+        int temp;
+        try {
+            temp = Integer.parseInt("123");
+        } catch (Exception e) {
+            temp = -1;
+        }
+        x = temp;  // ✅ assigned exactly once
+        System.out.println(x);  // 123
+    }
+}
+```
+
+---
+
+## 🎯 Tricky Interview Questions
+
+---
+
+### ❓ Q1. What is the output?
+
+```java
+public class Test {
+    public static void main(String[] args) {
+        final int x = 10;
+        final int y = 20;
+        int z = x + y;
+        System.out.println(z);
+    }
+}
+```
+
+**Answer:** `30`
+
+**Bonus insight:** Since `x` and `y` are `final` with compile-time constants, the compiler actually **replaces `x + y` with `30` directly** (constant folding optimization). This is called **compile-time constant expressions**.
+
+---
+
+### ❓ Q2. Will this compile?
+
+```java
+final int a;
+a = 5;
+a = 10;
+```
+
+**Answer:** ❌ No. `a` is assigned twice. `final` variables can only be assigned **once**.
+
+---
+
+### ❓ Q3. What is the output?
+
+```java
+final StringBuilder sb = new StringBuilder("Hello");
+sb.append(" World");
+System.out.println(sb);
+```
+
+**Answer:** ✅ `Hello World`
+
+`final` only prevents reassigning `sb` to a new object. The `StringBuilder` itself is mutable — `.append()` modifies its internal content, which is allowed.
+
+---
+
+### ❓ Q4. Can a `final` method be overloaded?
+
+**Answer:** ✅ YES. `final` prevents **overriding** (in subclasses), NOT **overloading** (in the same class).
+
+```java
+public class Demo {
+    final void show() {
+        System.out.println("no args");
+    }
+
+    void show(int x) {   // ✅ overloading is fine
+        System.out.println("with arg: " + x);
+    }
+}
+```
+
+---
+
+### ❓ Q5. What's wrong?
+
+```java
+public class Animal {
+    final void breathe() {
+        System.out.println("Breathing...");
+    }
+}
+
+public class Dog extends Animal {
+    void breathe() {
+        System.out.println("Dog breathing...");
+    }
+}
+```
+
+**Answer:** ❌ Compile error — `breathe()` in `Animal` is `final`, so `Dog` cannot override it.
+
+---
+
+### ❓ Q6. Is `String` final? Why?
+
+**Answer:** Yes. `String` is `public final class String`.
+
+**Reasons:**
+1. **Security** — if String could be subclassed, malicious code could override behavior used in security-sensitive code (like class loading, network URLs)
+2. **String pool** — the string pool only works safely because Strings are immutable and can't be subclassed to change behavior
+3. **Thread safety** — immutable objects are inherently thread-safe
+4. **Caching hashCode** — String caches its `hashCode()` since the value never changes
+
+---
+
+### ❓ Q7. What is a blank final variable?
+
+**Answer:** A `final` instance variable that is **declared but not initialized** at the point of declaration. It must be initialized **in every constructor** of the class.
+
+```java
+class Box {
+    final int size;      // blank final
+
+    Box(int size) {
+        this.size = size;  // ✅ initialized in constructor
+    }
+}
+```
+
+---
+
+### ❓ Q8. Can a constructor be `final`?
+
+**Answer:** ❌ No. Constructors are never inherited, so making them `final` is meaningless. Java does not allow `final` constructors — it's a compile error.
+
+---
+
+### ❓ Q9. What is compile-time constant? Why does it matter?
+
+```java
+final int X = 5;
+final int Y = 10;
+int sum = X + Y;  // compiler replaces this with 15 directly
+```
+
+A `static final` primitive or `String` initialized with a **literal value** is a **compile-time constant**. The compiler substitutes its value directly wherever it's used — this is called **constant inlining** or **constant folding**.
+
+This matters in `switch` statements — only compile-time constants are allowed as case labels!
+
+---
+
+## 📝 Summary Table
+
+| Usage | What it prevents | Example |
+|-------|-----------------|---------|
+| `final` variable | Reassignment | `final int MAX = 100;` |
+| `final` instance var | Reassignment after construction | `final String id;` |
+| `static final` | Reassignment, shared constant | `static final double PI = 3.14;` |
+| `final` on object ref | Reassigning reference, NOT mutating object | `final List<> list` |
+| `final` method | Subclass overriding | `final void process()` |
+| `final` class | Inheritance / subclassing | `public final class String` |
+
+---
+
 
