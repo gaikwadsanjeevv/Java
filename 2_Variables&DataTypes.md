@@ -1967,4 +1967,537 @@ This matters in `switch` statements — only compile-time constants are allowed 
 
 ---
 
+# 2.6 — Scope of Variables in Java (Local, Instance, Static)
+
+> 📘 *Reference: Java The Complete Reference — Herbert Schildt*
+
+---
+
+## 📌 What is Scope?
+
+**Scope** of a variable means:
+- **Where** the variable can be accessed (visibility)
+- **When** the variable is created and destroyed (lifetime)
+
+In Java, there are **3 types of variables** based on where they are declared:
+
+| Type | Declared Inside | Also Called |
+|------|----------------|-------------|
+| **Local Variable** | Method / block / constructor | Stack variable |
+| **Instance Variable** | Class (outside methods), no `static` | Field / Member variable |
+| **Static Variable** | Class with `static` keyword | Class variable |
+
+---
+
+## 🔵 1. Local Variables
+
+### What is it?
+A variable declared **inside a method, constructor, or block `{}`**.
+
+### Key Rules:
+- Created when the method/block is entered
+- Destroyed when the method/block exits
+- Stored on the **Stack memory**
+- **Must be initialized** before use — no default value
+- Cannot use access modifiers (`private`, `public`, etc.)
+- Cannot be `static`
+
+### Example:
+
+```java
+public class LocalDemo {
+    public static void main(String[] args) {
+
+        int x = 10;          // local variable
+        String name = "Alice"; // local variable
+
+        if (x > 5) {
+            int y = 20;      // local to this if-block only
+            System.out.println(x + y);  // ✅ 30
+        }
+
+        // System.out.println(y);  ❌ ERROR — y is out of scope here
+        System.out.println(name);  // ✅ Alice
+    }
+}
+```
+
+### No Default Value — Must Initialize:
+
+```java
+public class LocalDefault {
+    public static void main(String[] args) {
+        int x;
+        System.out.println(x);  // ❌ COMPILE ERROR — variable x might not have been initialized
+    }
+}
+```
+
+---
+
+### Block Scope — `{}` creates a new scope
+
+Every `{}` creates its own scope. Variables inside are not accessible outside:
+
+```java
+public class BlockScope {
+    public static void main(String[] args) {
+
+        {
+            int a = 100;
+            System.out.println(a);  // ✅ 100
+        }
+
+        // System.out.println(a);  ❌ ERROR — a is out of scope
+
+        for (int i = 0; i < 3; i++) {
+            System.out.println(i);  // ✅ i exists only inside for
+        }
+
+        // System.out.println(i);  ❌ ERROR — i is out of scope
+    }
+}
+```
+
+---
+
+### Variable Shadowing in Nested Blocks
+
+```java
+public class Shadowing {
+    public static void main(String[] args) {
+        int x = 10;
+
+        {
+            // int x = 20;  ❌ ERROR — cannot redeclare x in nested block
+            // Java does NOT allow shadowing in nested blocks (unlike C/C++)
+        }
+    }
+}
+```
+
+> ⚠️ **Java does NOT allow** a local variable in a nested block to shadow a local variable in an outer block. This is different from C/C++!
+
+---
+
+## 🟢 2. Instance Variables
+
+### What is it?
+A variable declared **inside a class but outside any method**, without `static`.
+
+### Key Rules:
+- Created when an **object is created** (`new`)
+- Destroyed when the **object is garbage collected**
+- Stored on the **Heap memory**
+- Gets a **default value** if not initialized
+- Can use access modifiers (`private`, `public`, `protected`)
+- Each object has its **own copy**
+
+### Default Values:
+
+| Type | Default Value |
+|------|--------------|
+| `int`, `short`, `byte`, `long` | `0` |
+| `float`, `double` | `0.0` |
+| `char` | `'\u0000'` (null char) |
+| `boolean` | `false` |
+| Object reference | `null` |
+
+### Example:
+
+```java
+public class Student {
+
+    // Instance variables — each Student object has its own copy
+    String name;       // default: null
+    int age;           // default: 0
+    double gpa;        // default: 0.0
+    boolean isActive;  // default: false
+
+    public static void main(String[] args) {
+
+        Student s1 = new Student();
+        Student s2 = new Student();
+
+        s1.name = "Alice";
+        s1.age = 20;
+        s1.gpa = 9.1;
+
+        s2.name = "Bob";
+        s2.age = 22;
+        s2.gpa = 8.5;
+
+        System.out.println(s1.name + " | " + s1.age + " | " + s1.gpa);
+        System.out.println(s2.name + " | " + s2.age + " | " + s2.gpa);
+    }
+}
+```
+
+**Output:**
+```
+Alice | 20 | 9.1
+Bob | 22 | 8.5
+```
+
+Each object has its OWN `name`, `age`, `gpa`. Changing `s1.name` does NOT affect `s2.name`.
+
+---
+
+### Accessing Instance Variables with `this`
+
+When a local variable has the same name as an instance variable, use `this` to refer to the instance variable:
+
+```java
+public class Person {
+
+    String name;  // instance variable
+    int age;
+
+    Person(String name, int age) {
+        this.name = name;  // this.name = instance variable, name = parameter
+        this.age = age;
+    }
+
+    void display() {
+        System.out.println(name + " is " + age + " years old");
+    }
+
+    public static void main(String[] args) {
+        Person p = new Person("Charlie", 25);
+        p.display();  // Charlie is 25 years old
+    }
+}
+```
+
+---
+
+## 🔴 3. Static Variables (Class Variables)
+
+### What is it?
+A variable declared with the `static` keyword inside a class, outside any method.
+
+### Key Rules:
+- Created when the **class is loaded** by JVM
+- Destroyed when the **class is unloaded** (program ends)
+- Stored in the **Method Area** (part of JVM memory)
+- **Shared by ALL objects** — only ONE copy exists
+- Gets a **default value** just like instance variables
+- Accessed via **class name** (recommended) or object reference
+
+### Example:
+
+```java
+public class Counter {
+
+    static int count = 0;  // static variable — shared by ALL objects
+    String name;
+
+    Counter(String name) {
+        this.name = name;
+        count++;  // increments the SHARED counter
+    }
+
+    public static void main(String[] args) {
+        Counter c1 = new Counter("First");
+        Counter c2 = new Counter("Second");
+        Counter c3 = new Counter("Third");
+
+        System.out.println("Total objects: " + Counter.count);  // 3
+    }
+}
+```
+
+**Output:**
+```
+Total objects: 3
+```
+
+All three objects share the **same `count`** variable. Every time a new `Counter` is created, the single shared `count` is incremented.
+
+---
+
+### Static vs Instance — Memory Visualization
+
+```
+JVM Memory
+├── Stack (per thread)
+│   └── Local variables (x, name, i, etc.)
+│
+├── Heap
+│   └── Object 1: { name="Alice", age=20 }  ← instance variables
+│   └── Object 2: { name="Bob",   age=22 }  ← instance variables
+│
+└── Method Area
+    └── Counter.count = 3  ← static variable (ONE copy for entire class)
+```
+
+---
+
+### Accessing Static Variables
+
+```java
+public class AppConfig {
+
+    public static final String VERSION = "1.0.0";
+    public static int userCount = 0;
+
+    public static void main(String[] args) {
+        // Access via class name — RECOMMENDED
+        System.out.println(AppConfig.VERSION);     // 1.0.0
+        System.out.println(AppConfig.userCount);   // 0
+
+        AppConfig.userCount = 5;
+
+        // Access via object — NOT recommended (misleading)
+        AppConfig obj = new AppConfig();
+        System.out.println(obj.userCount);  // ⚠️ works but bad practice
+    }
+}
+```
+
+---
+
+## 📊 Side-by-Side Comparison
+
+```java
+public class VariableTypes {
+
+    static int staticVar = 100;    // Static variable
+    int instanceVar = 200;         // Instance variable
+
+    void method() {
+        int localVar = 300;        // Local variable
+
+        System.out.println(staticVar);    // ✅ 100
+        System.out.println(instanceVar);  // ✅ 200
+        System.out.println(localVar);     // ✅ 300
+    }
+
+    public static void main(String[] args) {
+        System.out.println(staticVar);    // ✅ accessible (static context)
+        // System.out.println(instanceVar); ❌ ERROR — need object for instance var
+
+        VariableTypes obj = new VariableTypes();
+        obj.method();
+    }
+}
+```
+
+---
+
+## 🧠 Full Comparison Table
+
+| Feature | Local | Instance | Static |
+|---------|-------|----------|--------|
+| Declared | Inside method/block | Inside class, no `static` | Inside class, with `static` |
+| Memory | Stack | Heap | Method Area |
+| Lifetime | Method execution | Object lifetime | Class lifetime |
+| Default value | ❌ None (must initialize) | ✅ Yes | ✅ Yes |
+| Per object copy | N/A | ✅ Yes (own copy) | ❌ No (shared) |
+| Access modifier | ❌ Not allowed | ✅ Allowed | ✅ Allowed |
+| Access via | Direct name | `object.var` or `this` | `ClassName.var` |
+| `static` method access | ✅ Direct | ❌ Needs object | ✅ Direct |
+
+---
+
+## 🔄 Scope in Different Constructs
+
+### In `for` loop:
+```java
+for (int i = 0; i < 5; i++) {
+    // i is local to this loop
+}
+// i not accessible here
+```
+
+### In `try-catch`:
+```java
+try {
+    int x = 10;  // local to try block
+} catch (Exception e) {
+    // x not accessible here
+    // e is local to catch block
+}
+// Neither x nor e accessible here
+```
+
+### In Lambda (Java 8+):
+```java
+int multiplier = 3;  // effectively final local variable
+
+// lambdas can use local variables only if they are final or effectively final
+Runnable r = () -> System.out.println(multiplier * 2);  // ✅
+// multiplier = 5;  // ❌ would break lambda — must be effectively final
+r.run();  // 6
+```
+
+---
+
+## 🎯 Tricky Interview Questions
+
+---
+
+### ❓ Q1. What is the output?
+
+```java
+public class Test {
+    static int x = 5;
+
+    public static void main(String[] args) {
+        int x = 10;  // local variable shadows static variable
+        System.out.println(x);         // which x?
+        System.out.println(Test.x);    // which x?
+    }
+}
+```
+
+**Answer:**
+```
+10
+5
+```
+Local variable `x = 10` shadows the static `x = 5` inside `main`. `Test.x` explicitly refers to the static one.
+
+---
+
+### ❓ Q2. What is the output?
+
+```java
+public class Test {
+    int val;  // instance variable
+
+    public static void main(String[] args) {
+        Test t = new Test();
+        System.out.println(t.val);
+    }
+}
+```
+
+**Answer:** `0`
+Instance variables get default values. `int` defaults to `0`.
+
+---
+
+### ❓ Q3. Will this compile?
+
+```java
+public class Test {
+    public static void main(String[] args) {
+        int a;
+        int b = a + 5;
+        System.out.println(b);
+    }
+}
+```
+
+**Answer:** ❌ Compile error — `variable a might not have been initialized`. Local variables have no default value.
+
+---
+
+### ❓ Q4. What is the output?
+
+```java
+public class Test {
+    static int count = 0;
+
+    Test() { count++; }
+
+    public static void main(String[] args) {
+        Test t1 = new Test();
+        Test t2 = new Test();
+        Test t3 = t1;  // t3 points to same object as t1
+        new Test();    // anonymous object
+
+        System.out.println(Test.count);
+    }
+}
+```
+
+**Answer:** `3`
+`t3 = t1` does NOT create a new object — just another reference to the same one. `new Test()` (anonymous) DOES create a new object. So constructors called: t1, t2, anonymous = 3 times.
+
+---
+
+### ❓ Q5. Can two local variables in the same method have the same name?
+
+```java
+public void test() {
+    int x = 10;
+    int x = 20;  // ?
+}
+```
+
+**Answer:** ❌ Compile error — duplicate local variable `x`. Two variables in the same scope cannot have the same name.
+
+---
+
+### ❓ Q6. What is "effectively final"?
+
+**Answer:** A local variable that is **never reassigned after initialization** is called **effectively final** — even without the `final` keyword. Java 8+ requires variables used in lambdas and anonymous inner classes to be **final or effectively final**.
+
+```java
+int num = 42;               // effectively final — never reassigned
+Runnable r = () -> System.out.println(num);  // ✅ works
+
+int count = 0;
+count++;                    // reassigned — NOT effectively final
+// Runnable r2 = () -> System.out.println(count);  ❌ ERROR
+```
+
+---
+
+### ❓ Q7. Instance variable vs local variable — same name?
+
+```java
+public class Demo {
+    int x = 50;  // instance variable
+
+    void show() {
+        int x = 100;  // local variable — shadows instance variable
+        System.out.println(x);       // 100 (local)
+        System.out.println(this.x);  // 50 (instance)
+    }
+
+    public static void main(String[] args) {
+        new Demo().show();
+    }
+}
+```
+
+**Answer:**
+```
+100
+50
+```
+Local `x` shadows instance `x` inside the method. Use `this.x` to access the instance variable.
+
+---
+
+### ❓ Q8. Where are each type of variables stored in memory?
+
+**Answer:**
+- **Local variables** → **Stack** (fast, automatically managed, thread-safe by nature)
+- **Instance variables** → **Heap** (inside the object, garbage collected)
+- **Static variables** → **Method Area / Metaspace** (one copy per class, lives for program duration)
+
+---
+
+## 📝 Summary
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    VARIABLE SCOPE IN JAVA                   │
+├─────────────────┬──────────────────┬────────────────────────┤
+│  LOCAL          │  INSTANCE        │  STATIC                │
+├─────────────────┼──────────────────┼────────────────────────┤
+│ Inside method   │ Inside class     │ Inside class           │
+│ Stack memory    │ Heap memory      │ Method Area            │
+│ No default val  │ Has default val  │ Has default val        │
+│ Thread safe ✅  │ Not thread safe  │ Not thread safe        │
+│ Method scope    │ Object scope     │ Class scope            │
+└─────────────────┴──────────────────┴────────────────────────┘
+```
+
+---
+
 
