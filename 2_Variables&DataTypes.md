@@ -532,6 +532,641 @@ BankAccount acc = new BankAccount();
 - **Local variables have no default values** — must initialize before use. Instance variables do get defaults.
 
 - `goto` and `const` are **reserved keywords** in Java even though they are unused — reserved to prevent C programmer confusion.
+---
+# 2.2 — Primitive Data Types in Java
+
+> 📘 *Reference: Java The Complete Reference — Herbert Schildt*
+
+---
+
+## 📌 What are Primitive Data Types?
+
+Java has **8 built-in primitive data types**. They are called "primitive" because they:
+- Are **not objects** — they hold raw values directly
+- Are stored on the **Stack** (fast access)
+- Have **fixed sizes** regardless of platform
+- Have **default values** when used as instance/static variables
+
+```
+Java's 8 Primitive Types
+│
+├── Integer Types   → byte, short, int, long
+├── Floating Point  → float, double
+├── Character       → char
+└── Boolean         → boolean
+```
+
+---
+
+## 📊 Master Reference Table
+
+| Type | Size | Min Value | Max Value | Default | Example |
+|------|------|-----------|-----------|---------|---------|
+| `byte` | 1 byte (8 bits) | -128 | 127 | 0 | `byte b = 100;` |
+| `short` | 2 bytes (16 bits) | -32,768 | 32,767 | 0 | `short s = 1000;` |
+| `int` | 4 bytes (32 bits) | -2,147,483,648 | 2,147,483,647 | 0 | `int i = 50000;` |
+| `long` | 8 bytes (64 bits) | -9.2 × 10¹⁸ | 9.2 × 10¹⁸ | 0L | `long l = 100L;` |
+| `float` | 4 bytes (32 bits) | ~1.4e-45 | ~3.4e+38 | 0.0f | `float f = 3.14f;` |
+| `double` | 8 bytes (64 bits) | ~4.9e-324 | ~1.8e+308 | 0.0 | `double d = 3.14;` |
+| `char` | 2 bytes (16 bits) | 0 (`'\u0000'`) | 65,535 (`'\uffff'`) | `'\u0000'` | `char c = 'A';` |
+| `boolean` | ~1 bit (JVM decides) | — | — | `false` | `boolean flag = true;` |
+
+---
+
+## 🔵 1. `int` — Most Used Integer Type
+
+### What is it?
+The most commonly used integer type in Java. Stores whole numbers (no decimals).
+
+### Size & Range:
+- **4 bytes = 32 bits**
+- Range: **-2,147,483,648 to 2,147,483,647** (~2.1 billion)
+- Formula: `-2³¹` to `2³¹ - 1`
+
+### Declaration & Usage:
+
+```java
+public class IntDemo {
+    public static void main(String[] args) {
+
+        int age = 25;
+        int temperature = -10;
+        int population = 1_400_000_000;   // underscores for readability (Java 7+)
+        int hex = 0xFF;                    // hexadecimal = 255
+        int binary = 0b1010;               // binary = 10
+        int octal = 017;                   // octal = 15
+
+        System.out.println(age);           // 25
+        System.out.println(population);    // 1400000000
+        System.out.println(hex);           // 255
+        System.out.println(binary);        // 10
+        System.out.println(octal);         // 15
+
+        // Max and Min values
+        System.out.println(Integer.MAX_VALUE);  // 2147483647
+        System.out.println(Integer.MIN_VALUE);  // -2147483648
+    }
+}
+```
+
+### Integer Overflow:
+```java
+int max = Integer.MAX_VALUE;
+System.out.println(max + 1);  // -2147483648 (wraps around!)
+```
+
+> ⚠️ Integer overflow does NOT throw an exception in Java — it silently wraps around. This is a common bug!
+
+---
+
+## 🟤 2. `byte` — Smallest Integer Type
+
+### What is it?
+Smallest integer type. Used when memory is critical (e.g., file I/O, network data, large arrays).
+
+### Size & Range:
+- **1 byte = 8 bits**
+- Range: **-128 to 127**
+- Formula: `-2⁷` to `2⁷ - 1`
+
+### Declaration & Usage:
+
+```java
+public class ByteDemo {
+    public static void main(String[] args) {
+
+        byte b1 = 100;
+        byte b2 = -50;
+        byte b3 = 127;    // max
+        byte b4 = -128;   // min
+
+        System.out.println(b1);  // 100
+        System.out.println(b3);  // 127
+
+        // byte b5 = 128;  ❌ ERROR — out of range
+
+        // Byte arithmetic — result becomes int!
+        byte x = 10;
+        byte y = 20;
+        // byte z = x + y;  ❌ ERROR — x + y is int, not byte
+        byte z = (byte)(x + y);  // ✅ explicit cast needed
+        System.out.println(z);   // 30
+
+        System.out.println(Byte.MAX_VALUE);  // 127
+        System.out.println(Byte.MIN_VALUE);  // -128
+    }
+}
+```
+
+### Real Use Case — Byte Arrays:
+```java
+// Reading file data — bytes are efficient for raw binary data
+byte[] fileData = new byte[1024];  // 1KB buffer
+```
+
+---
+
+## 🟡 3. `short` — Medium Integer Type
+
+### What is it?
+Rarely used in modern Java. Useful when dealing with legacy systems or specific protocols.
+
+### Size & Range:
+- **2 bytes = 16 bits**
+- Range: **-32,768 to 32,767**
+- Formula: `-2¹⁵` to `2¹⁵ - 1`
+
+### Declaration & Usage:
+
+```java
+public class ShortDemo {
+    public static void main(String[] args) {
+
+        short s1 = 30000;
+        short s2 = -15000;
+
+        System.out.println(s1);  // 30000
+        System.out.println(s2);  // -15000
+
+        System.out.println(Short.MAX_VALUE);  // 32767
+        System.out.println(Short.MIN_VALUE);  // -32768
+
+        // short arithmetic — also promotes to int
+        short a = 100;
+        short b = 200;
+        // short c = a + b;  ❌ ERROR — result is int
+        short c = (short)(a + b);  // ✅
+        System.out.println(c);  // 300
+    }
+}
+```
+
+---
+
+## 🟢 4. `long` — Large Integer Type
+
+### What is it?
+Used when `int` is not big enough. Essential for timestamps, large IDs, file sizes.
+
+### Size & Range:
+- **8 bytes = 64 bits**
+- Range: **-9,223,372,036,854,775,808 to 9,223,372,036,854,775,807** (~9.2 × 10¹⁸)
+- Formula: `-2⁶³` to `2⁶³ - 1`
+
+### Declaration & Usage:
+
+```java
+public class LongDemo {
+    public static void main(String[] args) {
+
+        long population = 8_000_000_000L;  // ✅ L suffix required!
+        long distance = 9_460_730_472_580L; // distance to nearest star in km
+        long timestamp = System.currentTimeMillis();  // current time in ms
+
+        System.out.println(population);   // 8000000000
+        System.out.println(timestamp);    // e.g. 1709812345678
+
+        System.out.println(Long.MAX_VALUE);  // 9223372036854775807
+        System.out.println(Long.MIN_VALUE);  // -9223372036854775808
+
+        // Without L suffix — COMPILE ERROR if value exceeds int range
+        // long big = 9_000_000_000;  ❌ ERROR — integer too large
+        long big = 9_000_000_000L;   // ✅
+    }
+}
+```
+
+### Common Real-World Uses of `long`:
+```java
+long userId    = 1234567890123L;    // database IDs
+long fileSize  = 2_147_483_648L;    // files larger than 2GB
+long epochTime = 1_700_000_000_000L; // Unix timestamp in milliseconds
+```
+
+---
+
+## 🔴 5. `float` — Single Precision Decimal
+
+### What is it?
+A 32-bit floating point number. Less precise than `double`. Rarely used in modern Java unless memory is critical.
+
+### Size & Precision:
+- **4 bytes = 32 bits**
+- ~**6–7 significant decimal digits** of precision
+- Suffix: **must use `f` or `F`**
+
+### Declaration & Usage:
+
+```java
+public class FloatDemo {
+    public static void main(String[] args) {
+
+        float price = 9.99f;      // ✅ f suffix required
+        float pi = 3.14159f;
+        float temp = -273.15f;
+
+        System.out.println(price);  // 9.99
+        System.out.println(pi);     // 3.14159
+
+        // Without f — compile error (double literal assigned to float)
+        // float x = 3.14;  ❌ ERROR — possible lossy conversion
+        float x = (float) 3.14;  // ✅ explicit cast
+        float y = 3.14f;         // ✅ f suffix
+
+        System.out.println(Float.MAX_VALUE);  // 3.4028235E38
+        System.out.println(Float.MIN_VALUE);  // 1.4E-45
+    }
+}
+```
+
+### Float Precision Issue:
+```java
+float f = 0.1f + 0.2f;
+System.out.println(f);  // 0.3 ? NO! → 0.3000000119209290 (imprecise!)
+```
+
+> ⚠️ Floats have precision issues. Never use `float` (or `double`) for money calculations. Use `BigDecimal` instead.
+
+---
+
+## 🟠 6. `double` — Double Precision Decimal (Most Used)
+
+### What is it?
+The default floating-point type in Java. More precise than `float`. Used for all general decimal calculations.
+
+### Size & Precision:
+- **8 bytes = 64 bits**
+- ~**15–16 significant decimal digits** of precision
+- No suffix needed (decimal literals are `double` by default)
+
+### Declaration & Usage:
+
+```java
+public class DoubleDemo {
+    public static void main(String[] args) {
+
+        double pi = 3.141592653589793;
+        double gravity = 9.80665;
+        double avogadro = 6.02214076e23;  // scientific notation
+
+        System.out.println(pi);        // 3.141592653589793
+        System.out.println(gravity);   // 9.80665
+        System.out.println(avogadro);  // 6.02214076E23
+
+        // Special double values
+        System.out.println(1.0 / 0.0);   // Infinity
+        System.out.println(-1.0 / 0.0);  // -Infinity
+        System.out.println(0.0 / 0.0);   // NaN (Not a Number)
+
+        // Checking special values
+        System.out.println(Double.isInfinite(1.0/0.0));  // true
+        System.out.println(Double.isNaN(0.0/0.0));       // true
+
+        System.out.println(Double.MAX_VALUE);  // 1.7976931348623157E308
+    }
+}
+```
+
+### float vs double Precision:
+```java
+float  f = 1.0f / 3.0f;
+double d = 1.0  / 3.0;
+
+System.out.println(f);  // 0.33333334     (7 digits)
+System.out.println(d);  // 0.3333333333333333  (16 digits)
+```
+
+---
+
+## 🟣 7. `char` — Single Character
+
+### What is it?
+Stores a **single character**. In Java, `char` uses **Unicode (UTF-16)**, so it can represent characters from almost any language.
+
+### Size & Range:
+- **2 bytes = 16 bits** (unsigned)
+- Range: **0 to 65,535** (Unicode values)
+- Single quotes `' '` — not double quotes
+
+### Declaration & Usage:
+
+```java
+public class CharDemo {
+    public static void main(String[] args) {
+
+        char letter = 'A';
+        char digit  = '7';
+        char symbol = '@';
+        char unicode = '\u0041';  // Unicode for 'A'
+        char newline = '\n';      // escape sequence
+
+        System.out.println(letter);   // A
+        System.out.println(unicode);  // A (same as 'A')
+
+        // char is actually a number internally!
+        char ch = 'A';
+        System.out.println((int) ch);     // 65 (ASCII/Unicode value)
+        System.out.println(ch + 1);       // 66 (int — char promotes to int in arithmetic)
+        System.out.println((char)(ch+1)); // B
+
+        // char arithmetic
+        for (char c = 'A'; c <= 'Z'; c++) {
+            System.out.print(c + " ");  // A B C D ... Z
+        }
+    }
+}
+```
+
+### Escape Sequences:
+
+| Sequence | Meaning |
+|----------|---------|
+| `'\n'` | New line |
+| `'\t'` | Tab |
+| `'\\'` | Backslash |
+| `'\''` | Single quote |
+| `'\"'` | Double quote |
+| `'\r'` | Carriage return |
+| `'\u0041'` | Unicode character (A) |
+
+### char + int = int (Important!):
+```java
+char c = 'A';        // 65
+int result = c + 5;  // 70 (int, not char)
+System.out.println(result);        // 70
+System.out.println((char)result);  // F
+```
+
+---
+
+## ⚪ 8. `boolean` — True or False
+
+### What is it?
+Stores only two values: `true` or `false`. Used in conditions, flags, and control flow.
+
+### Size:
+- Technically **1 bit** of information, but JVM typically uses **1 byte** or more internally (JVM-dependent)
+- Cannot be converted to/from `int` (unlike C/C++)
+
+### Declaration & Usage:
+
+```java
+public class BooleanDemo {
+    public static void main(String[] args) {
+
+        boolean isJavaFun   = true;
+        boolean isRaining   = false;
+        boolean isAdult     = (18 >= 18);  // true
+        boolean isEmpty     = "".isEmpty(); // true
+
+        System.out.println(isJavaFun);   // true
+        System.out.println(isRaining);   // false
+        System.out.println(isAdult);     // true
+
+        // Boolean in conditions
+        int age = 20;
+        boolean canVote = age >= 18;
+        if (canVote) {
+            System.out.println("Can vote");
+        }
+
+        // Boolean expressions
+        boolean a = true, b = false;
+        System.out.println(a && b);   // false (AND)
+        System.out.println(a || b);   // true  (OR)
+        System.out.println(!a);       // false (NOT)
+
+        // boolean CANNOT be converted to int (unlike C/C++)
+        // int x = isJavaFun;  ❌ ERROR
+    }
+}
+```
+
+---
+
+## 🔄 Arithmetic Promotion Rules (Very Important!)
+
+When you do arithmetic with small types, Java **automatically promotes** them to `int`:
+
+```java
+byte  a = 10;
+byte  b = 20;
+// byte c = a + b;  ❌ — a + b is computed as int!
+byte  c = (byte)(a + b);  // ✅ cast back to byte
+
+short x = 100;
+short y = 200;
+// short z = x + y;  ❌ — same issue
+int   z = x + y;    // ✅
+```
+
+### Promotion Hierarchy:
+```
+byte → short → int → long → float → double
+char → int → long → float → double
+```
+
+When two different types are used in an expression, the **smaller type is promoted to the larger type**:
+
+```java
+int    i = 10;
+double d = 3.14;
+double result = i + d;  // int promoted to double → 13.14
+```
+
+---
+
+## 💡 Choosing the Right Type
+
+| Scenario | Best Type |
+|----------|-----------|
+| Age, count, index | `int` |
+| Very large numbers (IDs, timestamps) | `long` |
+| Memory-critical arrays | `byte` |
+| General decimal math | `double` |
+| Currency / finance | `BigDecimal` (not primitive!) |
+| Single character | `char` |
+| True/false flag | `boolean` |
+| Rarely needed | `short`, `float` |
+
+---
+
+## 🎯 Tricky Interview Questions
+
+---
+
+### ❓ Q1. What is the output?
+
+```java
+int a = 2147483647;  // Integer.MAX_VALUE
+a++;
+System.out.println(a);
+```
+
+**Answer:** `-2147483648`
+Integer overflow — wraps around to `MIN_VALUE` silently.
+
+---
+
+### ❓ Q2. Will this compile?
+
+```java
+byte b = 127;
+b++;
+System.out.println(b);
+```
+
+**Answer:** ✅ Compiles and prints `-128`
+`b++` is equivalent to `b = (byte)(b + 1)` — the compound assignment includes implicit cast. 127 + 1 overflows to -128.
+
+---
+
+### ❓ Q3. What is the output?
+
+```java
+char c = 'A';
+System.out.println(c + 1);
+System.out.println((char)(c + 1));
+```
+
+**Answer:**
+```
+66
+B
+```
+`c + 1` promotes `char` to `int` → 65 + 1 = 66. Casting back to `char` gives `'B'`.
+
+---
+
+### ❓ Q4. Will this compile?
+
+```java
+float f = 3.14;
+```
+
+**Answer:** ❌ Compile error — `3.14` is a `double` literal. Assigning `double` to `float` is a lossy conversion.
+
+Fix: `float f = 3.14f;` or `float f = (float) 3.14;`
+
+---
+
+### ❓ Q5. What is the output?
+
+```java
+System.out.println(1 / 2);
+System.out.println(1.0 / 2);
+System.out.println(1 / 2.0);
+```
+
+**Answer:**
+```
+0
+0.5
+0.5
+```
+`1 / 2` → integer division → `0`. When either operand is `double`, result is `double`.
+
+---
+
+### ❓ Q6. What is the output?
+
+```java
+double d = 1.0 / 0.0;
+System.out.println(d);
+System.out.println(d == Double.POSITIVE_INFINITY);
+```
+
+**Answer:**
+```
+Infinity
+true
+```
+Dividing a double by zero gives `Infinity`, NOT an exception (unlike integer division by zero which throws `ArithmeticException`).
+
+---
+
+### ❓ Q7. What is the size of `boolean` in Java?
+
+**Answer:** It's **not precisely defined by the Java specification**. The JVM decides. In practice:
+- A single `boolean` → typically 1 byte (or 4 bytes, JVM-dependent)
+- A `boolean[]` array → typically 1 byte per element
+- This is unlike C where `bool` is explicitly 1 byte
+
+---
+
+### ❓ Q8. What is the output?
+
+```java
+byte b = (byte) 130;
+System.out.println(b);
+```
+
+**Answer:** `-126`
+
+130 in binary (8-bit): `10000010`
+As signed byte: `-126` (two's complement)
+
+---
+
+### ❓ Q9. What is the output?
+
+```java
+int x = 5;
+int y = 2;
+double result = x / y;
+System.out.println(result);
+```
+
+**Answer:** `2.0`
+`x / y` is **integer division** → `2` (not 2.5). Then `2` is promoted to `double` → `2.0`.
+
+Fix: `double result = (double) x / y;` → `2.5`
+
+---
+
+### ❓ Q10. What is the output?
+
+```java
+long l = 1000 * 1000 * 1000 * 1000;
+System.out.println(l);
+```
+
+**Answer:** Unexpected result — possibly wrong!
+
+`1000 * 1000 * 1000 * 1000` is computed as **int multiplication** first (overflow!), then assigned to `long`.
+
+Fix: `long l = 1000L * 1000 * 1000 * 1000;` → `1000000000000L`
+
+---
+
+## 📝 Summary
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                  JAVA PRIMITIVE DATA TYPES                      │
+├──────────┬────────┬───────────────────────────┬─────────────────┤
+│  Type    │  Size  │  Range                    │  Default        │
+├──────────┼────────┼───────────────────────────┼─────────────────┤
+│  byte    │ 1 byte │ -128 to 127               │  0              │
+│  short   │ 2 byte │ -32768 to 32767           │  0              │
+│  int     │ 4 byte │ -2.1B to 2.1B             │  0              │
+│  long    │ 8 byte │ -9.2×10¹⁸ to 9.2×10¹⁸    │  0L             │
+│  float   │ 4 byte │ ±3.4×10³⁸ (7 digits)      │  0.0f           │
+│  double  │ 8 byte │ ±1.8×10³⁰⁸ (15 digits)   │  0.0            │
+│  char    │ 2 byte │ 0 to 65535 (Unicode)      │  '\u0000'       │
+│  boolean │ ~1 bit │ true / false              │  false          │
+└──────────┴────────┴───────────────────────────┴─────────────────┘
+```
+
+---
+
+## 🔗 What's Next?
+
+➡️ **2.3 — Non-Primitive Types: String, Arrays, Objects**
+
+---
+
+*Part of the Java Beginner → Advanced + DSA + System Design Master Course*
 
 # 2.3 Type Casting — Converting Between Primitive Types
 
