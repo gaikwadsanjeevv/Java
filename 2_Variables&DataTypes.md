@@ -1160,12 +1160,6 @@ Fix: `long l = 1000L * 1000 * 1000 * 1000;` → `1000000000000L`
 
 ---
 
-## 🔗 What's Next?
-
-➡️ **2.3 — Non-Primitive Types: String, Arrays, Objects**
-
----
-
 *Part of the Java Beginner → Advanced + DSA + System Design Master Course*
 
 # 2.3 Type Casting — Converting Between Primitive Types
