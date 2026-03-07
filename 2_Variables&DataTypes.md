@@ -1064,3 +1064,421 @@ c++;                // ✅ also outputs 'b' — ++ handles cast internally
 
 - **Overflow in narrowing cast is silent** — Java keeps only the rightmost N bits and gives you whatever number that represents. No error, no warning.
 
+# 2.4 — `var` Keyword in Java (Java 10+)
+
+> 📘 *Reference: Java The Complete Reference — Herbert Schildt | Java 10 JEP 286*
+
+---
+
+## 📌 What is `var`?
+
+Introduced in **Java 10**, `var` is a **local variable type inference** keyword.
+
+It tells the Java compiler:
+> *"You figure out the type — I don't want to write it explicitly."*
+
+Java was always a **statically typed** language — meaning every variable must have a declared type. With `var`, you still get static typing, but the **compiler infers the type automatically** from the right-hand side of the assignment.
+
+> ⚠️ `var` is **NOT** a new data type. It is just a shorthand that lets the compiler do the type-declaration work for you.
+
+---
+
+## 🔍 Syntax
+
+```java
+// Without var (traditional)
+String name = "Alice";
+int age = 25;
+ArrayList<String> list = new ArrayList<>();
+
+// With var (Java 10+)
+var name = "Alice";       // compiler infers String
+var age = 25;             // compiler infers int
+var list = new ArrayList<String>();  // compiler infers ArrayList<String>
+```
+
+The type is **locked at compile time** — it does NOT change at runtime.
+
+---
+
+## ✅ Where `var` CAN be used
+
+### 1. Local variables inside methods
+
+```java
+public class VarDemo {
+    public static void main(String[] args) {
+
+        var message = "Hello, Java 10!";   // String
+        var count = 100;                    // int
+        var price = 99.99;                  // double
+        var isActive = true;                // boolean
+
+        System.out.println(message);
+        System.out.println(count);
+        System.out.println(price);
+        System.out.println(isActive);
+    }
+}
+```
+
+**Output:**
+```
+Hello, Java 10!
+100
+99.99
+true
+```
+
+---
+
+### 2. Inside `for` loops
+
+```java
+public class VarLoopDemo {
+    public static void main(String[] args) {
+
+        // Traditional
+        for (int i = 0; i < 5; i++) {
+            System.out.println(i);
+        }
+
+        // With var
+        for (var i = 0; i < 5; i++) {
+            System.out.println(i);
+        }
+
+        // Enhanced for-each with var
+        var fruits = new String[]{"Apple", "Banana", "Mango"};
+        for (var fruit : fruits) {
+            System.out.println(fruit);  // fruit is inferred as String
+        }
+    }
+}
+```
+
+---
+
+### 3. With Collections and Generics
+
+```java
+import java.util.*;
+
+public class VarCollections {
+    public static void main(String[] args) {
+
+        // Without var — verbose
+        HashMap<String, List<Integer>> map1 = new HashMap<String, List<Integer>>();
+
+        // With var — clean
+        var map2 = new HashMap<String, List<Integer>>();
+
+        map2.put("scores", List.of(90, 85, 92));
+        System.out.println(map2);
+    }
+}
+```
+
+---
+
+### 4. With try-with-resources (Java 10+)
+
+```java
+import java.io.*;
+
+public class VarTryDemo {
+    public static void main(String[] args) throws Exception {
+        try (var reader = new BufferedReader(new FileReader("file.txt"))) {
+            var line = reader.readLine();
+            System.out.println(line);
+        }
+    }
+}
+```
+
+---
+
+## ❌ Where `var` CANNOT be used
+
+This is very important — these rules are tested in interviews!
+
+### 1. ❌ Class fields (instance variables)
+
+```java
+public class Person {
+    var name = "Alice";  // ❌ COMPILE ERROR — var not allowed for fields
+}
+```
+
+### 2. ❌ Method parameters
+
+```java
+public void greet(var name) {  // ❌ COMPILE ERROR
+    System.out.println(name);
+}
+```
+
+### 3. ❌ Method return types
+
+```java
+public var getName() {  // ❌ COMPILE ERROR
+    return "Alice";
+}
+```
+
+### 4. ❌ Without initialization
+
+```java
+var x;        // ❌ COMPILE ERROR — compiler can't infer type without value
+var y = null; // ❌ COMPILE ERROR — null has no type info
+```
+
+### 5. ❌ Lambda expressions
+
+```java
+var lambda = () -> System.out.println("Hi");  // ❌ COMPILE ERROR
+```
+
+### 6. ❌ Array initializer shorthand
+
+```java
+var arr = {1, 2, 3};           // ❌ COMPILE ERROR
+var arr = new int[]{1, 2, 3};  // ✅ This works fine
+```
+
+---
+
+## 🔁 `var` is STILL statically typed — proof
+
+Once `var` infers a type, **it cannot change**:
+
+```java
+var score = 100;      // inferred as int
+score = "hundred";    // ❌ COMPILE ERROR — can't assign String to int
+score = 200;          // ✅ Fine — still int
+```
+
+This is very different from JavaScript's `var` which is dynamic. **Java's `var` is compile-time, not runtime.**
+
+---
+
+## 🧠 How the Compiler Infers Types
+
+The compiler looks at the **right-hand side** of the assignment:
+
+| Code | Inferred Type |
+|------|--------------|
+| `var x = 10;` | `int` |
+| `var x = 10L;` | `long` |
+| `var x = 10.5;` | `double` |
+| `var x = 10.5f;` | `float` |
+| `var x = 'A';` | `char` |
+| `var x = true;` | `boolean` |
+| `var x = "Hello";` | `String` |
+| `var x = new ArrayList<>();` | `ArrayList<Object>` ⚠️ |
+| `var x = new ArrayList<String>();` | `ArrayList<String>` ✅ |
+| `var x = List.of(1, 2, 3);` | `List<Integer>` |
+
+> ⚠️ **Important:** `new ArrayList<>()` with diamond operator gives `ArrayList<Object>` — always specify the generic type when using `var`.
+
+---
+
+## 📊 `var` vs Explicit Type — When to Use What?
+
+| Situation | Use `var`? | Reason |
+|-----------|-----------|--------|
+| Simple types (`int`, `String`) | ✅ Optional | Both are fine, readability same |
+| Complex generics (`Map<String, List<Integer>>`) | ✅ Recommended | Reduces verbosity |
+| When type is obvious from RHS | ✅ Yes | `var list = new ArrayList<String>()` is clear |
+| When type is NOT obvious from RHS | ❌ No | `var result = compute();` — reader can't tell the type |
+| Public APIs / method signatures | ❌ No | Not allowed anyway |
+| Loop variables | ✅ Yes | Clean & readable |
+
+---
+
+## 💡 Real World Example — Before vs After `var`
+
+### Before Java 10 (verbose)
+```java
+import java.util.*;
+import java.util.stream.*;
+
+public class BeforeVar {
+    public static void main(String[] args) {
+        List<String> names = Arrays.asList("Alice", "Bob", "Charlie", "Dave");
+        Map<Integer, List<String>> groupedByLength = names.stream()
+            .collect(Collectors.groupingBy(String::length));
+
+        for (Map.Entry<Integer, List<String>> entry : groupedByLength.entrySet()) {
+            System.out.println(entry.getKey() + " -> " + entry.getValue());
+        }
+    }
+}
+```
+
+### After Java 10 (with `var`)
+```java
+import java.util.*;
+import java.util.stream.*;
+
+public class AfterVar {
+    public static void main(String[] args) {
+        var names = Arrays.asList("Alice", "Bob", "Charlie", "Dave");
+        var groupedByLength = names.stream()
+            .collect(Collectors.groupingBy(String::length));
+
+        for (var entry : groupedByLength.entrySet()) {
+            System.out.println(entry.getKey() + " -> " + entry.getValue());
+        }
+    }
+}
+```
+
+**Output (both same):**
+```
+3 -> [Bob, Dave]
+5 -> [Alice]
+7 -> [Charlie]
+```
+
+Much cleaner, same behavior.
+
+---
+
+## 🎯 Tricky Questions & Answers
+
+---
+
+### ❓ Q1. What is the output?
+
+```java
+var x = 5;
+var y = 10.0;
+var z = x + y;
+System.out.println(z);
+System.out.println(((Object)z).getClass().getSimpleName());
+```
+
+**Answer:**
+```
+15.0
+Double
+```
+**Explanation:** `int + double = double`. So `z` is inferred as `double`. Autoboxing to `Double` for `.getClass()`.
+
+---
+
+### ❓ Q2. Will this compile?
+
+```java
+var list = new ArrayList<>();
+list.add("Hello");
+list.add(123);
+list.add(3.14);
+System.out.println(list);
+```
+
+**Answer:** ✅ Yes, it compiles!
+`new ArrayList<>()` without type → inferred as `ArrayList<Object>`, so it accepts anything.
+Output: `[Hello, 123, 3.14]`
+
+> This is why you should always write `new ArrayList<String>()` with `var`.
+
+---
+
+### ❓ Q3. What's wrong here?
+
+```java
+var a = 10;
+var b = 20;
+var c;
+c = a + b;
+System.out.println(c);
+```
+
+**Answer:** ❌ Compile error on `var c;`
+`var` must be initialized at declaration. Compiler cannot infer type from nothing.
+
+**Fix:**
+```java
+var c = 0;  // initialize with a value
+c = a + b;
+```
+
+---
+
+### ❓ Q4. Is `var` a reserved keyword?
+
+**Answer:** No! `var` is a **reserved type name**, NOT a keyword.
+
+This means you can still use `var` as a variable name (though you shouldn't!):
+
+```java
+var var = "confusing";  // ✅ compiles but terrible practice
+System.out.println(var); // prints: confusing
+```
+
+You **cannot** use it as a class name though:
+```java
+class var {}  // ❌ COMPILE ERROR in Java 10+
+```
+
+---
+
+### ❓ Q5. What does `var` infer here?
+
+```java
+var num = 10_000_000;
+System.out.println(num);
+```
+
+**Answer:** `int` — the underscore is just a numeric separator (Java 7+), doesn't change the type.
+Output: `10000000`
+
+---
+
+### ❓ Q6. Will this compile? What is the type?
+
+```java
+var result = true ? "yes" : 42;
+System.out.println(result);
+```
+
+**Answer:** ✅ Compiles. Type is `Object` (common supertype of `String` and `Integer`).
+Output: `yes`
+
+---
+
+### ❓ Q7. Spot the mistake:
+
+```java
+public class Test {
+    var name = "Alice";
+
+    public static void main(String[] args) {
+        var t = new Test();
+        System.out.println(t.name);
+    }
+}
+```
+
+**Answer:** ❌ Compile error — `var name = "Alice"` is an **instance variable (field)**, and `var` is **not allowed for fields**, only local variables.
+
+---
+
+## 📝 Summary Table
+
+| Feature | Details |
+|---------|---------|
+| Introduced in | Java 10 |
+| Full name | Local Variable Type Inference |
+| Is it a keyword? | No — it's a reserved type name |
+| Typing | Static (compile-time), NOT dynamic |
+| Allowed in | Local variables, for loops, try-with-resources |
+| NOT allowed in | Fields, method params, return types, lambda, uninitialized vars |
+| Performance impact | None — compiled to exact type |
+| Readability | Better for complex generics, same for simple types |
+
+---
+
+
