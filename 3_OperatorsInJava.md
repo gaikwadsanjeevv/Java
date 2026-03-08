@@ -2875,6 +2875,574 @@ BIT MANIPULATION CHEAT SHEET:
 
 ---
 
+# 3.6 — Ternary Operator in Java
+
+> 📘 *Reference: Java The Complete Reference — Herbert Schildt*
+
+---
+
+## 📌 What is the Ternary Operator?
+
+The ternary operator is Java's only **3-operand operator**.
+It is a shorthand for a simple `if-else` statement that returns a value.
+
+```
+condition ? valueIfTrue : valueIfFalse
+    ▲              ▲            ▲
+ boolean       returned      returned
+expression    if true       if false
+```
+
+It is called "ternary" because it takes **three operands**:
+1. A condition (boolean expression)
+2. Value/expression if condition is `true`
+3. Value/expression if condition is `false`
+
+---
+
+## 🔵 Syntax & Basic Usage
+
+```java
+public class TernaryBasic {
+    public static void main(String[] args) {
+
+        // ── Basic syntax ──────────────────────────────
+        int a = 10;
+        int b = 20;
+
+        // Traditional if-else
+        int max;
+        if (a > b) {
+            max = a;
+        } else {
+            max = b;
+        }
+        System.out.println("Max (if-else): " + max);   // 20
+
+        // Same using ternary — cleaner, one line
+        int maxT = (a > b) ? a : b;
+        System.out.println("Max (ternary): " + maxT);  // 20
+
+        // ── Assign result to variable ─────────────────
+        int age     = 20;
+        String type = (age >= 18) ? "Adult" : "Minor";
+        System.out.println("Type: " + type);            // Adult
+
+        // ── Use directly in print ─────────────────────
+        int score = 75;
+        System.out.println("Result: " + (score >= 40 ? "PASS" : "FAIL")); // PASS
+
+        // ── With different data types ─────────────────
+        boolean isRaining = true;
+        String  advice    = isRaining ? "Carry umbrella ☂" : "Enjoy sunshine ☀";
+        System.out.println(advice);   // Carry umbrella ☂
+
+        double  price     = 1500.0;
+        double  discount  = (price > 1000) ? 0.10 : 0.05;  // 10% or 5%
+        System.out.println("Discount: " + (discount * 100) + "%");  // Discount: 10.0%
+    }
+}
+```
+
+---
+
+## ✅ 2. Ternary vs if-else — When to Use What
+
+```java
+public class TernaryVsIfElse {
+    public static void main(String[] args) {
+
+        int temperature = 38;
+
+        // ── if-else (use for complex / multi-line logic) ──
+        String weatherMsg;
+        if (temperature > 35) {
+            weatherMsg = "Very Hot 🔥";
+            System.out.println("Sending heat alert...");   // side effect
+        } else {
+            weatherMsg = "Comfortable 😊";
+        }
+        System.out.println(weatherMsg);
+
+        // ── ternary (use for simple single-value selection) ──
+        // Clean, no side effects, inline
+        String msg = (temperature > 35) ? "Very Hot 🔥" : "Comfortable 😊";
+        System.out.println(msg);   // Very Hot 🔥
+
+        // ── Rule of thumb ──────────────────────────────────
+        // ✅ Use ternary when:
+        //    - choosing between 2 simple values
+        //    - result fits on one readable line
+        //    - no side effects needed
+        //
+        // ✅ Use if-else when:
+        //    - multiple statements per branch
+        //    - side effects (print, method calls, assignments)
+        //    - more than 2 branches (use else-if or switch)
+    }
+}
+```
+
+---
+
+## 🟢 3. Ternary with All Data Types
+
+```java
+public class TernaryDataTypes {
+    public static void main(String[] args) {
+
+        // ── With int ──────────────────────────────────
+        int x = 7;
+        int absVal = (x >= 0) ? x : -x;       // absolute value
+        System.out.println("Absolute value: " + absVal);   // 7
+
+        int y = -15;
+        int absY = (y >= 0) ? y : -y;
+        System.out.println("Absolute value: " + absY);     // 15
+
+        // ── With double ───────────────────────────────
+        double balance = 2500.0;
+        double interest = (balance >= 5000) ? balance * 0.08   // 8% for high balance
+                                            : balance * 0.04;  // 4% for low balance
+        System.out.printf("Interest: ₹%.2f%n", interest);   // ₹100.00
+
+        // ── With String ───────────────────────────────
+        int hour = 14;   // 2 PM in 24-hour format
+        String greeting = (hour < 12) ? "Good Morning 🌅"
+                        : (hour < 17) ? "Good Afternoon ☀"
+                        :               "Good Evening 🌙";
+        System.out.println(greeting);   // Good Afternoon ☀
+
+        // ── With boolean ─────────────────────────────
+        int num = 42;
+        boolean isEven = (num % 2 == 0) ? true : false;
+        // Simpler: boolean isEven = (num % 2 == 0);  ← but ternary works too
+        System.out.println(num + " is even: " + isEven);   // true
+
+        // ── With char ────────────────────────────────
+        int marks = 85;
+        char grade = (marks >= 90) ? 'A'
+                   : (marks >= 80) ? 'B'
+                   : (marks >= 70) ? 'C'
+                   : (marks >= 60) ? 'D' : 'F';
+        System.out.println("Grade: " + grade);   // B
+
+        // ── In method return (very common in real code) ──
+        System.out.println("5 is " + (isPrime(5) ? "Prime" : "Not Prime"));     // Prime
+        System.out.println("10 is " + (isPrime(10) ? "Prime" : "Not Prime"));   // Not Prime
+    }
+
+    static boolean isPrime(int n) {
+        if (n < 2) return false;
+        for (int i = 2; i <= Math.sqrt(n); i++) {
+            if (n % i == 0) return false;
+        }
+        return true;
+    }
+}
+```
+
+---
+
+## 🟡 4. Nested Ternary Operator
+
+You can nest ternary operators for multiple conditions —
+but use sparingly as deep nesting hurts readability.
+
+```java
+public class NestedTernary {
+    public static void main(String[] args) {
+
+        // ── Grade calculator using nested ternary ──────
+        int score = 73;
+
+        String grade = (score >= 90) ? "A+" :
+                       (score >= 80) ? "A"  :
+                       (score >= 70) ? "B"  :
+                       (score >= 60) ? "C"  :
+                       (score >= 40) ? "D"  : "F";
+
+        System.out.println("Score: " + score + " → Grade: " + grade);  // B
+
+        // ── Classify number ────────────────────────────
+        int n = 0;
+        String category = (n > 0) ? "Positive"
+                        : (n < 0) ? "Negative"
+                        :           "Zero";
+        System.out.println(n + " is " + category);   // Zero
+
+        // ── Traffic light logic ────────────────────────
+        String light = "yellow";
+        String action = light.equals("green")  ? "Go ✅"  :
+                        light.equals("yellow") ? "Slow ⚠" :
+                                                 "Stop 🛑";
+        System.out.println("Light: " + light + " → " + action);  // Slow ⚠
+
+        // ── BMI category ───────────────────────────────
+        double bmi = 22.5;
+        String bmiCategory = (bmi < 18.5) ? "Underweight 🔵" :
+                             (bmi < 25.0) ? "Normal ✅"      :
+                             (bmi < 30.0) ? "Overweight 🟡"  :
+                                            "Obese 🔴";
+        System.out.printf("BMI %.1f → %s%n", bmi, bmiCategory);  // Normal ✅
+
+        // ── ⚠️ Avoid deep nesting — hard to read ───────
+        // Bad practice — too many levels:
+        int val = 50;
+        String result = (val > 100) ? "Very High" :
+                        (val > 75)  ? "High"       :
+                        (val > 50)  ? "Medium"     :
+                        (val > 25)  ? "Low"         :
+                        (val > 0)   ? "Very Low"    : "Zero or Negative";
+        System.out.println("Value category: " + result);  // Low
+        // If more than 3-4 levels → switch or if-else is better!
+    }
+}
+```
+
+---
+
+## 🔴 5. Ternary in Common Programming Patterns
+
+```java
+import java.util.*;
+
+public class TernaryPatterns {
+    public static void main(String[] args) {
+
+        // ── Pattern 1: Null-safe default value ─────────
+        // Very common in production code!
+        String username = null;
+        String display  = (username != null) ? username : "Guest";
+        System.out.println("Welcome, " + display);   // Welcome, Guest
+
+        String name = "Alice";
+        String displayName = (name != null) ? name : "Guest";
+        System.out.println("Welcome, " + displayName);   // Welcome, Alice
+
+        // ── Pattern 2: Absolute value ───────────────────
+        int num = -42;
+        int abs = (num < 0) ? -num : num;
+        System.out.println("Absolute: " + abs);   // 42
+
+        // ── Pattern 3: Min and Max ──────────────────────
+        int a = 15, b = 28;
+        int min = (a < b) ? a : b;
+        int max = (a > b) ? a : b;
+        System.out.println("Min: " + min + ", Max: " + max);   // Min: 15, Max: 28
+
+        // ── Pattern 4: Clamp a value in range ──────────
+        // Ensure value stays between min and max
+        int value = 150;
+        int clampMin = 0;
+        int clampMax = 100;
+        int clamped  = (value < clampMin) ? clampMin
+                     : (value > clampMax) ? clampMax
+                     : value;
+        System.out.println("Clamped: " + clamped);   // 100
+
+        // ── Pattern 5: Pluralization ────────────────────
+        int items = 1;
+        System.out.println(items + " item" + (items == 1 ? "" : "s") + " in cart");
+        // 1 item in cart
+
+        items = 5;
+        System.out.println(items + " item" + (items == 1 ? "" : "s") + " in cart");
+        // 5 items in cart
+
+        // ── Pattern 6: Alternate row colors (tables/UI) ─
+        System.out.println("\nTable rows:");
+        for (int i = 0; i < 5; i++) {
+            String color = (i % 2 == 0) ? "white" : "light-gray";
+            System.out.printf("Row %d → background: %s%n", i + 1, color);
+        }
+        // Row 1 → background: white
+        // Row 2 → background: light-gray
+        // Row 3 → background: white ...
+
+        // ── Pattern 7: Ternary as method argument ───────
+        int age = 17;
+        System.out.println(getTicketPrice(age >= 18 ? "adult" : "child"));
+        // Ticket price: ₹150.0
+
+        // ── Pattern 8: Short-circuit behavior ──────────
+        // Right side is only evaluated when condition is true/false
+        int divisor = 0;
+        // Safe division: avoid divide-by-zero
+        double result = (divisor != 0) ? (100.0 / divisor) : 0.0;
+        System.out.println("Safe division: " + result);   // 0.0
+    }
+
+    static double getTicketPrice(String type) {
+        double price = type.equals("adult") ? 300.0 : 150.0;
+        System.out.print("Ticket price: ₹" + price + "  → ");
+        return price;
+    }
+}
+```
+
+---
+
+## 🌍 Real World Project — Dynamic Pricing Engine
+
+```java
+public class DynamicPricingEngine {
+    public static void main(String[] args) {
+
+        System.out.println("╔══════════════════════════════════════════╗");
+        System.out.println("║        DYNAMIC PRICING ENGINE            ║");
+        System.out.println("╚══════════════════════════════════════════╝");
+
+        // Order details
+        String  memberType    = "premium";   // "premium", "regular", "guest"
+        boolean isFirstOrder  = false;
+        int     itemCount     = 8;
+        double  basePrice     = 2400.0;
+        boolean isWeekend     = true;
+        int     stockLeft     = 3;           // low stock!
+
+        System.out.printf("Base Price:     ₹%.2f%n", basePrice);
+        System.out.printf("Member Type:    %s%n",     memberType);
+        System.out.printf("Items:          %d%n",     itemCount);
+        System.out.println("─────────────────────────────────────────");
+
+        // ── Step 1: Member discount using ternary ──────
+        double memberDiscount = memberType.equals("premium") ? 0.15 :
+                                memberType.equals("regular") ? 0.05 : 0.0;
+        double afterMember    = basePrice * (1 - memberDiscount);
+        System.out.printf("Member Discount (%.0f%%): -₹%.2f → ₹%.2f%n",
+                          memberDiscount * 100,
+                          basePrice * memberDiscount,
+                          afterMember);
+
+        // ── Step 2: First order bonus ──────────────────
+        double firstOrderDiscount = isFirstOrder ? 0.10 : 0.0;
+        double afterFirstOrder    = afterMember * (1 - firstOrderDiscount);
+        System.out.printf("First Order (%.0f%%):     -₹%.2f → ₹%.2f%n",
+                          firstOrderDiscount * 100,
+                          afterMember * firstOrderDiscount,
+                          afterFirstOrder);
+
+        // ── Step 3: Bulk discount ──────────────────────
+        double bulkDiscount = (itemCount >= 10) ? 0.08 :
+                              (itemCount >= 5)  ? 0.04 : 0.0;
+        double afterBulk    = afterFirstOrder * (1 - bulkDiscount);
+        System.out.printf("Bulk Discount (%.0f%%):   -₹%.2f → ₹%.2f%n",
+                          bulkDiscount * 100,
+                          afterFirstOrder * bulkDiscount,
+                          afterBulk);
+
+        // ── Step 4: Weekend surge pricing ─────────────
+        double surgeMultiplier = isWeekend ? 1.05 : 1.0;   // 5% extra on weekends
+        double afterSurge      = afterBulk * surgeMultiplier;
+        System.out.printf("Weekend Surge (+%.0f%%):  +₹%.2f → ₹%.2f%n",
+                          (surgeMultiplier - 1) * 100,
+                          afterBulk * (surgeMultiplier - 1),
+                          afterSurge);
+
+        // ── Step 5: Low stock premium ──────────────────
+        double stockMultiplier = (stockLeft <= 5) ? 1.10 : 1.0;   // 10% if low stock
+        double finalPrice      = afterSurge * stockMultiplier;
+        System.out.printf("Low Stock (+%.0f%%):      +₹%.2f → ₹%.2f%n",
+                          (stockMultiplier - 1) * 100,
+                          afterSurge * (stockMultiplier - 1),
+                          finalPrice);
+
+        // ── Step 6: Shipping ───────────────────────────
+        double shipping = (finalPrice >= 1000) ? 0.0 : 99.0;
+        System.out.println("─────────────────────────────────────────");
+        System.out.printf("Shipping:        ₹%.2f  %s%n",
+                          shipping,
+                          shipping == 0 ? "(Free! 🎉)" : "");
+        System.out.printf("FINAL PRICE:     ₹%.2f%n", finalPrice + shipping);
+
+        // ── Summary label ──────────────────────────────
+        double savings       = basePrice - finalPrice;
+        String savingsLabel  = (savings > 0)   ? String.format("You saved ₹%.2f! 🎉", savings)
+                             : (savings < 0)   ? String.format("Price increased by ₹%.2f", -savings)
+                             :                   "No change in price";
+        System.out.println(savingsLabel);
+    }
+}
+```
+
+**Output:**
+```
+╔══════════════════════════════════════════╗
+║        DYNAMIC PRICING ENGINE            ║
+╚══════════════════════════════════════════╝
+Base Price:     ₹2400.00
+Member Type:    premium
+Items:          8
+─────────────────────────────────────────
+Member Discount (15%): -₹360.00 → ₹2040.00
+First Order (0%):      -₹0.00   → ₹2040.00
+Bulk Discount (4%):    -₹81.60  → ₹1958.40
+Weekend Surge (+5%):   +₹97.92  → ₹2056.32
+Low Stock (+10%):      +₹205.63 → ₹2261.95
+─────────────────────────────────────────
+Shipping:        ₹0.00  (Free! 🎉)
+FINAL PRICE:     ₹2261.95
+You saved ₹138.05! 🎉
+```
+
+---
+
+## 🎯 Tricky Interview Questions
+
+---
+
+### ❓ Q1. What is the output?
+
+```java
+int a = 5, b = 10;
+int result = (a > b) ? a++ : b++;
+System.out.println("result=" + result + " a=" + a + " b=" + b);
+```
+
+**Answer:** `result=10 a=5 b=11`
+
+`a > b` is `false` → `b++` executes (post-increment: returns `10`, then b becomes `11`).
+`a++` is **never evaluated** — ternary short-circuits like `if-else`.
+
+---
+
+### ❓ Q2. What is the output?
+
+```java
+int x = 10;
+String s = (x > 5) ? "Big" : "Small";
+System.out.println(s.length());
+```
+
+**Answer:** `3`
+
+`x > 5` is `true` → returns `"Big"` → `.length()` = `3`.
+
+---
+
+### ❓ Q3. Will this compile?
+
+```java
+int x = 5;
+int result = (x > 3) ? "Yes" : 10;
+```
+
+**Answer:** ❌ Compile error — **incompatible types**.
+
+Both branches of ternary must have **compatible types**.
+`"Yes"` is `String`, `10` is `int` — no common type for `int result`.
+
+Fix: `String result = (x > 3) ? "Yes" : "No";` or `Object result = (x > 3) ? "Yes" : 10;`
+
+---
+
+### ❓ Q4. What is the output?
+
+```java
+int a = 10, b = 20, c = 30;
+int max = (a > b) ? ((a > c) ? a : c) : ((b > c) ? b : c);
+System.out.println("Max: " + max);
+```
+
+**Answer:** `Max: 30`
+
+Outer ternary: `a > b` (10 > 20) → `false` → evaluate `(b > c) ? b : c`.
+Inner: `b > c` (20 > 30) → `false` → returns `c = 30`.
+
+---
+
+### ❓ Q5. What is the output?
+
+```java
+boolean flag = true;
+int result = flag ? flag ? 1 : 2 : 3;
+System.out.println(result);
+```
+
+**Answer:** `1`
+
+Outer ternary: `flag` is `true` → evaluate left: `flag ? 1 : 2`.
+Inner: `flag` is `true` → returns `1`.
+
+---
+
+### ❓ Q6. What type does this ternary return?
+
+```java
+int    i = 5;
+double d = 2.5;
+var    result = (i > 3) ? i : d;
+System.out.println(result);
+```
+
+**Answer:** `5.0` — type is `double`
+
+When ternary branches have different numeric types, Java promotes to the
+wider type. `int` and `double` → result is `double`. So `i = 5` is promoted
+to `5.0`.
+
+---
+
+### ❓ Q7. What is the output?
+
+```java
+String s = null;
+int len = (s != null) ? s.length() : -1;
+System.out.println(len);
+```
+
+**Answer:** `-1`
+
+`s != null` is `false` → `s.length()` is **never evaluated** (short-circuit).
+Returns `-1` safely — no `NullPointerException`.
+
+---
+
+### ❓ Q8. What is the output?
+
+```java
+int x = 5;
+System.out.println(x > 3 ? x < 7 ? "in range" : "too high" : "too low");
+```
+
+**Answer:** `in range`
+
+Outer: `x > 3` → `true` → evaluate: `x < 7 ? "in range" : "too high"`.
+Inner: `x < 7` (5 < 7) → `true` → `"in range"`.
+
+---
+
+## 📝 Summary
+
+```
+TERNARY OPERATOR QUICK REFERENCE
+──────────────────────────────────────────────────────────────────
+Syntax:  condition ? valueIfTrue : valueIfFalse
+
+✅  Returns a VALUE — can assign, pass, print directly
+✅  Short-circuits — only one branch is evaluated
+✅  Both branches must have compatible types
+✅  Can be nested (use sparingly — 2-3 levels max)
+
+COMMON PATTERNS:
+✅  Null-safe default  →  (x != null) ? x : "default"
+✅  Absolute value     →  (n < 0) ? -n : n
+✅  Min / Max          →  (a < b) ? a : b
+✅  Clamp value        →  (v < min) ? min : (v > max) ? max : v
+✅  Pluralize          →  count + (count == 1 ? "" : "s")
+✅  Safe divide        →  (b != 0) ? a/b : 0
+✅  Grade to letter    →  nested ternary chains
+
+TERNARY vs IF-ELSE:
+✅  Use ternary  → simple 2-way value selection, one line
+✅  Use if-else  → multiple statements, side effects, 3+ branches
+```
+
+---
+
+
+
 
 
 
