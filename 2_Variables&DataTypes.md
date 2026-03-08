@@ -1159,10 +1159,833 @@ Fix: `long l = 1000L * 1000 * 1000 * 1000;` → `1000000000000L`
 ```
 
 ---
+# 2.3 — Non-Primitive Data Types in Java
+## String, Arrays, Objects
 
-*Part of the Java Beginner → Advanced + DSA + System Design Master Course*
+> 📘 *Reference: Java The Complete Reference — Herbert Schildt*
 
-# 2.3 Type Casting — Converting Between Primitive Types
+---
+
+## 📌 What are Non-Primitive Data Types?
+
+Non-primitive types are also called **Reference Types** because variables of these types
+store a **memory address (reference)** pointing to the actual data — not the data itself.
+
+```
+Primitive                     Non-Primitive (Reference)
+─────────────────             ──────────────────────────────────
+int x = 10;                   String s = "Hello";
+                              
+ Stack                         Stack          Heap
+┌────────┐                    ┌──────────┐   ┌───────────────┐
+│ x = 10 │                    │ s = @101 │──▶│  "Hello"      │
+└────────┘                    └──────────┘   └───────────────┘
+(value stored directly)       (reference stored, object on heap)
+```
+
+### Key Differences from Primitives:
+
+| Feature | Primitive | Non-Primitive |
+|---------|-----------|---------------|
+| Stores | Actual value | Memory address (reference) |
+| Memory | Stack | Stack (ref) + Heap (object) |
+| Default value | `0`, `false`, `'\u0000'` | `null` |
+| Methods | ❌ None | ✅ Has methods |
+| Nullable | ❌ No | ✅ Yes (`null`) |
+| Size | Fixed | Varies |
+| Examples | `int`, `char`, `boolean` | `String`, arrays, objects |
+
+---
+
+## 🔷 PART 1 — String
+
+---
+
+## 📌 What is String?
+
+`String` is a **class** in Java (`java.lang.String`), not a primitive.
+It represents a **sequence of characters** and is the most used non-primitive type.
+
+```java
+String name = "Alice";   // String literal
+String city = new String("Delhi");  // String object (less common)
+```
+
+---
+
+## 🏊 The String Pool
+
+Java maintains a special memory area called the **String Pool** (inside Heap).
+
+When you write `"Hello"`, Java:
+1. Checks if `"Hello"` already exists in the pool
+2. If yes → reuses the same object (no new allocation)
+3. If no → creates a new String in the pool
+
+```java
+public class StringPool {
+    public static void main(String[] args) {
+
+        String s1 = "Hello";      // goes into String pool
+        String s2 = "Hello";      // reuses same pool object
+        String s3 = new String("Hello");  // forces NEW object on heap (outside pool)
+
+        System.out.println(s1 == s2);       // true  (same pool reference)
+        System.out.println(s1 == s3);       // false (different objects)
+        System.out.println(s1.equals(s3));  // true  (same content)
+    }
+}
+```
+
+```
+String Pool (inside Heap)
+┌─────────────────┐
+│   "Hello"  ◀────┼── s1, s2 (both point here)
+└─────────────────┘
+
+Heap (outside pool)
+┌─────────────────┐
+│   "Hello"  ◀────┼── s3 (separate object)
+└─────────────────┘
+```
+
+> 🔑 **Rule:** Always use `.equals()` to compare String content, never `==`
+
+---
+
+## 🧊 String Immutability
+
+Strings in Java are **immutable** — once created, their value **cannot be changed**.
+
+```java
+public class StringImmutable {
+    public static void main(String[] args) {
+
+        String s = "Hello";
+        s = s + " World";  // does NOT modify "Hello"
+                           // creates a NEW String "Hello World"
+                           // s now points to the new object
+                           // "Hello" is abandoned (garbage collected)
+
+        System.out.println(s);  // Hello World
+    }
+}
+```
+
+```
+Before:  s ──▶ "Hello"
+After:   s ──▶ "Hello World"   (new object)
+               "Hello"         (abandoned, eligible for GC)
+```
+
+**Why immutable?**
+- Security (used in class loading, network connections)
+- Thread safety (multiple threads can safely share Strings)
+- String pool works only because Strings can't change
+- HashCode can be cached (used in HashMap keys)
+
+---
+
+## 🔧 Common String Methods
+
+```java
+public class StringMethods {
+    public static void main(String[] args) {
+
+        String s = "  Hello, Java World!  ";
+
+        // Length
+        System.out.println(s.length());           // 22
+
+        // Case
+        System.out.println(s.toUpperCase());      // "  HELLO, JAVA WORLD!  "
+        System.out.println(s.toLowerCase());      // "  hello, java world!  "
+
+        // Trim & Strip
+        System.out.println(s.trim());             // "Hello, Java World!" (removes leading/trailing spaces)
+        System.out.println(s.strip());            // same but handles Unicode spaces too (Java 11+)
+
+        // Character access
+        System.out.println(s.charAt(7));          // 'H' (after trim mentally — actually index 7 of original)
+
+        // Substring
+        String clean = s.trim();
+        System.out.println(clean.substring(7));       // "Java World!"
+        System.out.println(clean.substring(7, 11));   // "Java"
+
+        // Contains, StartsWith, EndsWith
+        System.out.println(clean.contains("Java"));      // true
+        System.out.println(clean.startsWith("Hello"));   // true
+        System.out.println(clean.endsWith("World!"));    // true
+
+        // IndexOf
+        System.out.println(clean.indexOf("Java"));    // 7
+        System.out.println(clean.indexOf("Python"));  // -1 (not found)
+
+        // Replace
+        System.out.println(clean.replace("Java", "Python"));  // Hello, Python World!
+
+        // Split
+        String csv = "apple,banana,mango";
+        String[] fruits = csv.split(",");
+        for (String fruit : fruits) {
+            System.out.println(fruit);  // apple, banana, mango
+        }
+
+        // Join (Java 8+)
+        String joined = String.join(" - ", "one", "two", "three");
+        System.out.println(joined);  // one - two - three
+
+        // isEmpty vs isBlank (Java 11+)
+        System.out.println("".isEmpty());     // true
+        System.out.println("  ".isEmpty());   // false (has spaces)
+        System.out.println("  ".isBlank());   // true  (only whitespace)
+
+        // charAt to check character type
+        char c = 'A';
+        System.out.println(Character.isLetter(c));   // true
+        System.out.println(Character.isDigit(c));    // false
+        System.out.println(Character.toLowerCase(c)); // a
+    }
+}
+```
+
+---
+
+## ⚡ String vs StringBuilder vs StringBuffer
+
+```java
+public class StringComparison {
+    public static void main(String[] args) {
+
+        // String — immutable, new object each concat
+        String str = "";
+        for (int i = 0; i < 5; i++) {
+            str += i;  // creates new String each time — slow!
+        }
+        System.out.println(str);  // 01234
+
+        // StringBuilder — mutable, fast, NOT thread-safe
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < 5; i++) {
+            sb.append(i);  // modifies same object — fast!
+        }
+        System.out.println(sb.toString());  // 01234
+
+        // StringBuilder methods
+        StringBuilder demo = new StringBuilder("Hello");
+        demo.append(" World");         // Hello World
+        demo.insert(5, ",");           // Hello, World
+        demo.delete(5, 6);             // Hello World
+        demo.reverse();                // dlroW olleH
+        demo.replace(0, 5, "Java");    // Java olleH (after reverse)
+        System.out.println(demo.length());  // length of current content
+
+        // StringBuffer — same as StringBuilder but thread-safe (synchronized)
+        StringBuffer buffer = new StringBuffer("Safe");
+        buffer.append(" Thread");
+        System.out.println(buffer);  // Safe Thread
+    }
+}
+```
+
+| | `String` | `StringBuilder` | `StringBuffer` |
+|--|----------|----------------|----------------|
+| Mutable | ❌ No | ✅ Yes | ✅ Yes |
+| Thread-safe | ✅ Yes | ❌ No | ✅ Yes |
+| Performance | Slow (concat) | ✅ Fast | Moderate |
+| Use when | Fixed text | Single-threaded | Multi-threaded |
+
+---
+
+## 🔷 PART 2 — Arrays
+
+---
+
+## 📌 What is an Array?
+
+An array is a **fixed-size, ordered collection** of elements of the **same type**.
+
+```java
+int[] numbers = new int[5];  // array of 5 integers
+```
+
+```
+Index:    0    1    2    3    4
+        ┌────┬────┬────┬────┬────┐
+numbers │  0 │  0 │  0 │  0 │  0 │   (default int values)
+        └────┴────┴────┴────┴────┘
+         ↑                       ↑
+      numbers[0]            numbers[4]
+```
+
+---
+
+## 📦 Declaring and Initializing Arrays
+
+```java
+public class ArrayDeclaration {
+    public static void main(String[] args) {
+
+        // Method 1: declare then allocate
+        int[] arr1;
+        arr1 = new int[5];
+
+        // Method 2: declare and allocate together
+        int[] arr2 = new int[5];
+
+        // Method 3: declare, allocate and initialize
+        int[] arr3 = new int[]{10, 20, 30, 40, 50};
+
+        // Method 4: shorthand initialization (only at declaration)
+        int[] arr4 = {10, 20, 30, 40, 50};
+
+        // Accessing elements
+        arr2[0] = 100;
+        arr2[1] = 200;
+        System.out.println(arr2[0]);  // 100
+        System.out.println(arr2.length);  // 5 (not a method — it's a field!)
+
+        // Default values
+        int[]     intArr  = new int[3];     // [0, 0, 0]
+        double[]  dblArr  = new double[3];  // [0.0, 0.0, 0.0]
+        boolean[] bolArr  = new boolean[3]; // [false, false, false]
+        String[]  strArr  = new String[3];  // [null, null, null]
+
+        System.out.println(intArr[0]);  // 0
+        System.out.println(strArr[0]);  // null
+    }
+}
+```
+
+---
+
+## 🔄 Iterating Arrays
+
+```java
+public class ArrayIteration {
+    public static void main(String[] args) {
+
+        int[] nums = {10, 20, 30, 40, 50};
+
+        // 1. Traditional for loop
+        for (int i = 0; i < nums.length; i++) {
+            System.out.print(nums[i] + " ");  // 10 20 30 40 50
+        }
+        System.out.println();
+
+        // 2. Enhanced for-each loop
+        for (int n : nums) {
+            System.out.print(n + " ");  // 10 20 30 40 50
+        }
+        System.out.println();
+
+        // 3. Arrays.toString() — print array easily
+        System.out.println(java.util.Arrays.toString(nums));  // [10, 20, 30, 40, 50]
+    }
+}
+```
+
+---
+
+## 📐 2D Arrays (Matrix)
+
+```java
+public class TwoDArray {
+    public static void main(String[] args) {
+
+        // 3x3 matrix
+        int[][] matrix = {
+            {1, 2, 3},
+            {4, 5, 6},
+            {7, 8, 9}
+        };
+
+        // Access: matrix[row][col]
+        System.out.println(matrix[0][0]);  // 1
+        System.out.println(matrix[1][1]);  // 5
+        System.out.println(matrix[2][2]);  // 9
+
+        // Iterate 2D array
+        for (int i = 0; i < matrix.length; i++) {
+            for (int j = 0; j < matrix[i].length; j++) {
+                System.out.print(matrix[i][j] + " ");
+            }
+            System.out.println();
+        }
+        // Output:
+        // 1 2 3
+        // 4 5 6
+        // 7 8 9
+
+        // 2D Arrays.deepToString
+        System.out.println(java.util.Arrays.deepToString(matrix));
+        // [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
+    }
+}
+```
+
+---
+
+## 🪡 Jagged Arrays (Uneven rows)
+
+```java
+public class JaggedArray {
+    public static void main(String[] args) {
+
+        // Rows with different lengths
+        int[][] jagged = new int[3][];
+        jagged[0] = new int[]{1};
+        jagged[1] = new int[]{2, 3};
+        jagged[2] = new int[]{4, 5, 6};
+
+        for (int[] row : jagged) {
+            System.out.println(java.util.Arrays.toString(row));
+        }
+        // [1]
+        // [2, 3]
+        // [4, 5, 6]
+    }
+}
+```
+
+---
+
+## 🛠️ Arrays Utility Class
+
+```java
+import java.util.Arrays;
+
+public class ArraysUtil {
+    public static void main(String[] args) {
+
+        int[] arr = {5, 3, 1, 4, 2};
+
+        // Sort
+        Arrays.sort(arr);
+        System.out.println(Arrays.toString(arr));  // [1, 2, 3, 4, 5]
+
+        // Binary search (array must be sorted first)
+        int index = Arrays.binarySearch(arr, 3);
+        System.out.println(index);  // 2
+
+        // Fill
+        int[] filled = new int[5];
+        Arrays.fill(filled, 7);
+        System.out.println(Arrays.toString(filled));  // [7, 7, 7, 7, 7]
+
+        // Copy
+        int[] copy = Arrays.copyOf(arr, 3);          // first 3 elements
+        System.out.println(Arrays.toString(copy));    // [1, 2, 3]
+
+        int[] rangeCopy = Arrays.copyOfRange(arr, 1, 4);  // index 1 to 3
+        System.out.println(Arrays.toString(rangeCopy));   // [2, 3, 4]
+
+        // Equals
+        int[] a = {1, 2, 3};
+        int[] b = {1, 2, 3};
+        System.out.println(Arrays.equals(a, b));  // true
+        System.out.println(a == b);               // false (different references)
+    }
+}
+```
+
+---
+
+## 🔷 PART 3 — Objects
+
+---
+
+## 📌 What is an Object?
+
+An **object** is an instance of a **class**. A class is a blueprint; an object is the real thing built from that blueprint.
+
+```java
+// Class = Blueprint
+class Dog {
+    String name;
+    String breed;
+    int age;
+
+    void bark() {
+        System.out.println(name + " says: Woof!");
+    }
+}
+
+// Object = Instance of Blueprint
+public class ObjectDemo {
+    public static void main(String[] args) {
+
+        Dog d1 = new Dog();   // object created on Heap
+        d1.name  = "Bruno";
+        d1.breed = "Labrador";
+        d1.age   = 3;
+
+        Dog d2 = new Dog();
+        d2.name  = "Max";
+        d2.breed = "Poodle";
+        d2.age   = 5;
+
+        d1.bark();  // Bruno says: Woof!
+        d2.bark();  // Max says: Woof!
+
+        System.out.println(d1.name);  // Bruno
+        System.out.println(d2.name);  // Max
+    }
+}
+```
+
+---
+
+## 🧠 How Objects Work in Memory
+
+```java
+Dog d1 = new Dog();
+Dog d2 = d1;  // both point to SAME object!
+```
+
+```
+Stack                 Heap
+┌──────────┐         ┌─────────────────────┐
+│ d1 = @200│────────▶│  Dog Object         │
+│ d2 = @200│────────▶│  name = "Bruno"     │
+└──────────┘         │  breed = "Labrador" │
+                     │  age = 3            │
+                     └─────────────────────┘
+```
+
+```java
+d2.name = "Rocky";
+System.out.println(d1.name);  // Rocky — same object!
+```
+
+> ⚠️ `d2 = d1` does NOT copy the object — it copies the **reference**. Both variables now point to the same object.
+
+---
+
+## null — The Absent Reference
+
+```java
+public class NullDemo {
+    public static void main(String[] args) {
+
+        String s = null;   // s points to nothing
+        Dog d = null;      // d points to nothing
+
+        System.out.println(s);         // null (prints "null")
+        // System.out.println(s.length()); ❌ NullPointerException!
+
+        // Null check before using
+        if (s != null) {
+            System.out.println(s.length());
+        }
+
+        // Safe null check with Objects utility (Java 7+)
+        System.out.println(java.util.Objects.isNull(s));    // true
+        System.out.println(java.util.Objects.nonNull(s));   // false
+    }
+}
+```
+
+---
+
+## 🔁 Passing Objects to Methods — Pass by Reference?
+
+Java is **always pass-by-value** — but for objects, the **value IS the reference**.
+
+```java
+class Box {
+    int size;
+    Box(int size) { this.size = size; }
+}
+
+public class PassByValue {
+
+    static void changeSize(Box b) {
+        b.size = 100;     // ✅ modifies the object (same reference)
+    }
+
+    static void reassign(Box b) {
+        b = new Box(999); // ❌ does NOT affect original (reassigns local copy of reference)
+    }
+
+    public static void main(String[] args) {
+        Box box = new Box(10);
+
+        changeSize(box);
+        System.out.println(box.size);  // 100 — object WAS modified
+
+        reassign(box);
+        System.out.println(box.size);  // 100 — still 100, not 999
+    }
+}
+```
+
+> 🔑 Java passes the **copy of the reference**, not the object itself. You can mutate the object through the reference, but you can't make the caller's variable point elsewhere.
+
+---
+
+## 🔧 The Object Class — Root of All Classes
+
+Every class in Java **implicitly extends `Object`** (`java.lang.Object`).
+Key methods inherited from `Object`:
+
+```java
+public class ObjectMethods {
+    public static void main(String[] args) {
+
+        String s = "Hello";
+
+        // toString() — string representation
+        System.out.println(s.toString());  // Hello
+
+        // equals() — content comparison
+        String s2 = "Hello";
+        System.out.println(s.equals(s2));  // true
+
+        // hashCode() — integer hash of the object
+        System.out.println(s.hashCode());  // some integer
+
+        // getClass() — runtime class info
+        System.out.println(s.getClass().getName());         // java.lang.String
+        System.out.println(s.getClass().getSimpleName());   // String
+
+        // Custom class inheriting Object methods
+        Dog d = new Dog();
+        d.name = "Bruno";
+        System.out.println(d.toString());   // Dog@hashcode (default)
+        System.out.println(d.getClass().getSimpleName());  // Dog
+    }
+}
+```
+
+---
+
+## 📊 Primitive Wrapper Classes
+
+Every primitive has a corresponding **wrapper class** (non-primitive Object version):
+
+| Primitive | Wrapper Class |
+|-----------|--------------|
+| `int` | `Integer` |
+| `double` | `Double` |
+| `float` | `Float` |
+| `long` | `Long` |
+| `byte` | `Byte` |
+| `short` | `Short` |
+| `char` | `Character` |
+| `boolean` | `Boolean` |
+
+```java
+public class WrapperDemo {
+    public static void main(String[] args) {
+
+        // Autoboxing — primitive → wrapper automatically
+        int x = 42;
+        Integer obj = x;  // autoboxing
+        System.out.println(obj);  // 42
+
+        // Unboxing — wrapper → primitive automatically
+        Integer y = 100;
+        int val = y;  // unboxing
+        System.out.println(val);  // 100
+
+        // Useful wrapper methods
+        System.out.println(Integer.parseInt("123"));    // 123 (String to int)
+        System.out.println(Integer.toBinaryString(10)); // 1010
+        System.out.println(Integer.toHexString(255));   // ff
+        System.out.println(Integer.MAX_VALUE);          // 2147483647
+        System.out.println(Double.parseDouble("3.14")); // 3.14
+        System.out.println(Boolean.parseBoolean("true")); // true
+    }
+}
+```
+
+---
+
+## 🎯 Tricky Interview Questions
+
+---
+
+### ❓ Q1. What is the output?
+
+```java
+String s1 = "Java";
+String s2 = "Java";
+String s3 = new String("Java");
+
+System.out.println(s1 == s2);
+System.out.println(s1 == s3);
+System.out.println(s1.equals(s3));
+```
+
+**Answer:**
+```
+true
+false
+true
+```
+`s1` and `s2` share the same pool object. `s3` is a separate heap object.
+`==` compares references, `.equals()` compares content.
+
+---
+
+### ❓ Q2. What is the output?
+
+```java
+String s = "Hello";
+s.concat(" World");
+System.out.println(s);
+```
+
+**Answer:** `Hello`
+
+`String` is immutable. `.concat()` returns a NEW string but we never assigned it.
+`s` still points to `"Hello"`.
+
+Fix: `s = s.concat(" World");`
+
+---
+
+### ❓ Q3. What is the output?
+
+```java
+int[] a = {1, 2, 3};
+int[] b = a;
+b[0] = 99;
+System.out.println(a[0]);
+```
+
+**Answer:** `99`
+
+Arrays are objects. `b = a` copies the reference, not the array.
+Both `a` and `b` point to the same array in memory.
+
+---
+
+### ❓ Q4. What is the output?
+
+```java
+String s = null;
+System.out.println("Value: " + s);
+```
+
+**Answer:** `Value: null`
+
+String concatenation with `null` converts it to the string `"null"`. No exception.
+
+---
+
+### ❓ Q5. Will this compile and run?
+
+```java
+int[] arr = new int[0];
+System.out.println(arr.length);
+```
+
+**Answer:** ✅ Yes. Output: `0`
+An array of size 0 is valid. It has no elements but exists as an object.
+
+---
+
+### ❓ Q6. What is Autoboxing pitfall?
+
+```java
+Integer a = 100;
+Integer b = 100;
+System.out.println(a == b);  // ?
+
+Integer c = 200;
+Integer d = 200;
+System.out.println(c == d);  // ?
+```
+
+**Answer:**
+```
+true
+false
+```
+Java caches `Integer` objects for values **-128 to 127** (the Integer Cache).
+`a` and `b` both point to the cached object → `true`.
+`c` and `d` (200) are beyond cache range → new objects → `false`.
+
+> Always use `.equals()` to compare Integer objects!
+
+---
+
+### ❓ Q7. What is the output?
+
+```java
+String[] arr = new String[3];
+System.out.println(arr[0]);
+System.out.println(arr[0].length());
+```
+
+**Answer:**
+- Line 1: `null` (default value for String array)
+- Line 2: ❌ `NullPointerException` — calling `.length()` on `null`
+
+---
+
+### ❓ Q8. Is Java pass-by-value or pass-by-reference?
+
+**Answer:** Java is **always pass-by-value**.
+
+- For **primitives**: a copy of the value is passed
+- For **objects**: a copy of the **reference** (memory address) is passed
+
+You can mutate the object using the copied reference, but reassigning the reference inside the method has no effect on the caller.
+
+---
+
+### ❓ Q9. What is the output?
+
+```java
+StringBuilder sb1 = new StringBuilder("Hello");
+StringBuilder sb2 = sb1;
+sb2.append(" World");
+System.out.println(sb1);
+```
+
+**Answer:** `Hello World`
+
+`sb2 = sb1` → both point to same `StringBuilder` object.
+Mutating through `sb2` is reflected when accessed via `sb1`.
+
+---
+
+### ❓ Q10. Difference between `String`, `StringBuilder`, `StringBuffer`?
+
+**Answer:**
+
+| | String | StringBuilder | StringBuffer |
+|--|--------|--------------|--------------|
+| Mutable | ❌ | ✅ | ✅ |
+| Thread-safe | ✅ | ❌ | ✅ |
+| Speed | Slow (concat) | Fast | Moderate |
+| Use case | Fixed text | Single thread | Multi-thread |
+
+---
+
+## 📝 Summary
+
+```
+NON-PRIMITIVE TYPES IN JAVA
+─────────────────────────────────────────────────────────
+
+  STRING                ARRAYS                OBJECTS
+  ──────                ──────                ───────
+  • Class (java.lang)   • Fixed size          • Instance of class
+  • Immutable           • Same type elements  • On Heap
+  • String Pool         • Default values      • null by default
+  • Use .equals()       • .length (field)     • Pass by ref value
+  • StringBuilder for   • Arrays utility      • extends Object
+    mutation            • 2D, jagged          • Wrapper classes
+```
+
+---
+
+# 2.4 Type Casting — Converting Between Primitive Types
 
 ---
 
@@ -1693,7 +2516,7 @@ c++;                // ✅ also outputs 'b' — ++ handles cast internally
 
 - **Overflow in narrowing cast is silent** — Java keeps only the rightmost N bits and gives you whatever number that represents. No error, no warning.
 
-# 2.4 — `var` Keyword in Java (Java 10+)
+# 2.5 — `var` Keyword in Java (Java 10+)
 
 > 📘 *Reference: Java The Complete Reference — Herbert Schildt | Java 10 JEP 286*
 
@@ -2110,7 +2933,8 @@ public class Test {
 
 ---
 
-# 2.5 — Constants & the `final` Keyword in Java
+# 2.6 — Constants & the `final` Keyword in Java
+> 🏷️ *Syllabus Section: 2.5 | Topic: Constants — `final` keyword*
 
 > 📘 *Reference: Java The Complete Reference — Herbert Schildt*
 
@@ -2596,7 +3420,7 @@ This matters in `switch` statements — only compile-time constants are allowed 
 
 ---
 
-# 2.6 — Scope of Variables in Java (Local, Instance, Static)
+# 2.7 — Scope of Variables in Java (Local, Instance, Static)
 
 > 📘 *Reference: Java The Complete Reference — Herbert Schildt*
 
@@ -3128,5 +3952,769 @@ Local `x` shadows instance `x` inside the method. Use `this.x` to access the ins
 ```
 
 ---
+# 2.7 — Tricky Questions on Data Types & Overflow in Java
+
+> 📘 *Reference: Java The Complete Reference — Herbert Schildt | Cracking the Coding Interview — Gayle McDowell*
+
+---
+
+## 📌 Why This Section Matters
+
+These are the questions that **trip up even experienced developers** in interviews at
+Google, Microsoft, and other top companies. They test whether you truly understand how
+Java handles data at the binary level — not just syntax.
+
+Topics covered:
+- Integer & long overflow
+- Floating point precision traps
+- Type promotion surprises
+- char arithmetic edge cases
+- boolean quirks
+- Casting traps
+- Mixed-type expression results
+
+---
+
+## 🔴 CATEGORY 1 — Integer Overflow
+
+---
+
+### ❓ Q1. What is the output?
+
+```java
+int x = Integer.MAX_VALUE;
+System.out.println(x + 1);
+```
+
+**Answer:** `-2147483648`
+
+**Explanation:**
+`Integer.MAX_VALUE` = `2147483647` = `0111 1111 1111 1111 1111 1111 1111 1111` in binary.
+Adding 1 flips it to `1000 0000 0000 0000 0000 0000 0000 0000` = `-2147483648` (two's complement).
+
+Java integer overflow **wraps around silently** — no exception, no warning.
+
+```
+MAX_VALUE + 1 → MIN_VALUE  (wraps to negative)
+MIN_VALUE - 1 → MAX_VALUE  (wraps to positive)
+```
+
+---
+
+### ❓ Q2. What is the output?
+
+```java
+int x = Integer.MIN_VALUE;
+System.out.println(x - 1);
+```
+
+**Answer:** `2147483647`
+
+Underflow wraps around to `MAX_VALUE`. Same two's complement behavior.
+
+---
+
+### ❓ Q3. What is the output?
+
+```java
+int a = 2000000000;
+int b = 2000000000;
+System.out.println(a + b);
+```
+
+**Answer:** `-294967296`
+
+Both values are within `int` range individually, but their **sum (4 billion) overflows `int`**.
+Result wraps around silently.
+
+**Fix:** Use `long`:
+```java
+long result = (long) a + b;  // 4000000000
+System.out.println(result);
+```
+
+---
+
+### ❓ Q4. What is the output?
+
+```java
+long result = 1000 * 1000 * 1000 * 1000;
+System.out.println(result);
+```
+
+**Answer:** `1000000000000`? ❌ WRONG — likely a garbage value or overflow!
+
+**Explanation:** All literals `1000` are `int`. The multiplication is done as **int arithmetic**
+first — which overflows — and THEN assigned to `long`.
+
+```java
+1000 * 1000          = 1,000,000        (fine, within int)
+1,000,000 * 1000     = 1,000,000,000    (fine, within int)
+1,000,000,000 * 1000 = 1,000,000,000,000 ❌ OVERFLOW (exceeds int max ~2.1B)
+```
+
+**Fix:** Force `long` arithmetic from the start:
+```java
+long result = 1000L * 1000 * 1000 * 1000;  // ✅ 1000000000000
+```
+
+---
+
+### ❓ Q5. What is the output?
+
+```java
+byte b = 127;
+b++;
+System.out.println(b);
+```
+
+**Answer:** `-128`
+
+`b++` is sugar for `b = (byte)(b + 1)`.
+`127 + 1 = 128`, but max byte is `127`, so it wraps to `-128`.
+
+Binary:
+```
+127  = 0111 1111
+128  = 1000 0000  → as signed byte = -128
+```
+
+---
+
+### ❓ Q6. What is the output?
+
+```java
+byte b = (byte) 200;
+System.out.println(b);
+```
+
+**Answer:** `-56`
+
+200 in binary (8-bit): `1100 1000`
+As signed two's complement: `-56`
+
+How to calculate:
+```
+200 - 256 = -56  (subtract 256 when MSB is 1 for byte)
+```
+
+---
+
+### ❓ Q7. What is the output?
+
+```java
+int i = -1;
+System.out.println(i >>> 1);
+```
+
+**Answer:** `2147483647` (i.e., `Integer.MAX_VALUE`)
+
+`>>>` is **unsigned right shift** — fills with `0` on the left regardless of sign.
+
+```
+-1 in binary (32-bit):  1111 1111 1111 1111 1111 1111 1111 1111
+>>> 1:                  0111 1111 1111 1111 1111 1111 1111 1111
+                      = 2147483647 = Integer.MAX_VALUE
+```
+
+Compare with `>>` (signed right shift):
+```java
+System.out.println(-1 >> 1);   // -1  (fills with 1 on left — sign preserved)
+System.out.println(-1 >>> 1);  // 2147483647 (fills with 0 on left)
+```
+
+---
+
+## 🟠 CATEGORY 2 — Floating Point Precision Traps
+
+---
+
+### ❓ Q8. What is the output?
+
+```java
+System.out.println(0.1 + 0.2);
+```
+
+**Answer:** `0.30000000000000004`
+
+**NOT** `0.3` !!
+
+Floating point numbers are stored in **binary (IEEE 754)**, and `0.1` and `0.2` cannot be
+represented exactly in binary — just like `1/3` can't be represented exactly in decimal.
+
+```
+0.1 in binary = 0.0001100110011...  (repeating)
+0.2 in binary = 0.0011001100110...  (repeating)
+Sum has tiny rounding error → 0.30000000000000004
+```
+
+**Fix for money/precision:** Use `BigDecimal`:
+```java
+import java.math.BigDecimal;
+
+BigDecimal a = new BigDecimal("0.1");
+BigDecimal b = new BigDecimal("0.2");
+System.out.println(a.add(b));  // 0.3 ✅
+```
+
+---
+
+### ❓ Q9. What is the output?
+
+```java
+double d = 1.0 / 0.0;
+System.out.println(d);
+```
+
+**Answer:** `Infinity`
+
+Double division by zero gives `Infinity` — **not an exception**!
+
+But integer division by zero:
+```java
+int i = 1 / 0;  // ❌ throws ArithmeticException: / by zero
+```
+
+Special double values:
+```java
+System.out.println(1.0 / 0.0);   // Infinity
+System.out.println(-1.0 / 0.0);  // -Infinity
+System.out.println(0.0 / 0.0);   // NaN
+System.out.println(Double.isNaN(0.0 / 0.0));       // true
+System.out.println(Double.isInfinite(1.0 / 0.0));  // true
+```
+
+---
+
+### ❓ Q10. What is the output?
+
+```java
+double a = Double.NaN;
+System.out.println(a == Double.NaN);
+System.out.println(a == a);
+System.out.println(Double.isNaN(a));
+```
+
+**Answer:**
+```
+false
+false
+true
+```
+
+**`NaN` is never equal to anything — including itself!**
+This is defined by the IEEE 754 standard.
+Always use `Double.isNaN()` to check for NaN.
+
+---
+
+### ❓ Q11. What is the output?
+
+```java
+float f = 0.1f + 0.2f;
+double d = 0.1 + 0.2;
+System.out.println(f == d);
+```
+
+**Answer:** `false`
+
+`f` and `d` both have floating-point errors but of **different magnitudes**.
+`float` has ~7 digits of precision, `double` has ~15.
+Their bit representations are different, so they're not equal.
+
+---
+
+### ❓ Q12. What is the output?
+
+```java
+System.out.println(1.0 == 1.0f);
+```
+
+**Answer:** `true`
+
+`1.0f` is promoted to `double` for comparison. Both represent exactly `1.0`
+(a power of 2, which CAN be exactly represented in binary).
+
+---
+
+## 🔵 CATEGORY 3 — Type Promotion Surprises
+
+---
+
+### ❓ Q13. Will this compile?
+
+```java
+byte a = 10;
+byte b = 20;
+byte c = a + b;
+```
+
+**Answer:** ❌ Compile error — `a + b` is computed as **`int`**, not `byte`.
+
+Java promotes `byte`, `short`, and `char` to `int` before ANY arithmetic operation.
+
+**Fix:**
+```java
+byte c = (byte)(a + b);  // explicit cast back to byte
+```
+
+---
+
+### ❓ Q14. What is the output?
+
+```java
+System.out.println(1 / 2);
+System.out.println(1 / 2.0);
+System.out.println(1.0 / 2);
+System.out.println((double) 1 / 2);
+System.out.println((double)(1 / 2));
+```
+
+**Answer:**
+```
+0
+0.5
+0.5
+0.5
+0.0
+```
+
+Line 1: `int / int` = integer division → `0`
+Line 2: `int / double` = `double` → `0.5`
+Line 3: `double / int` = `double` → `0.5`
+Line 4: cast `1` to `double` FIRST, then divide → `0.5`
+Line 5: integer division happens FIRST (`1/2 = 0`), THEN cast to `double` → `0.0`
+
+---
+
+### ❓ Q15. What is the output?
+
+```java
+int x = 5;
+double y = x;         // implicit widening
+System.out.println(y);
+
+double d = 9.99;
+int i = (int) d;      // explicit narrowing
+System.out.println(i);
+```
+
+**Answer:**
+```
+5.0
+9
+```
+
+Widening: `int → double` — automatic, no data loss.
+Narrowing: `double → int` — truncates decimal (does NOT round). `9.99 → 9`.
+
+---
+
+### ❓ Q16. What is the output?
+
+```java
+int x = 300;
+byte b = (byte) x;
+System.out.println(b);
+```
+
+**Answer:** `44`
+
+300 in binary (32-bit): `0000 0000 0000 0000 0000 0001 0010 1100`
+Cast to byte keeps only last 8 bits: `0010 1100` = `44`
+
+```
+300 % 256 = 44  (modulo 256 for byte range)
+OR
+300 - 256 = 44
+```
+
+---
+
+### ❓ Q17. What is the output?
+
+```java
+long l = 10;
+int i = (int) l;
+System.out.println(i);
+
+long big = 10000000000L;
+int truncated = (int) big;
+System.out.println(truncated);
+```
+
+**Answer:**
+```
+10
+1410065408
+```
+
+`10` fits in `int`, so no data loss.
+`10000000000L` exceeds `int` range — only last 32 bits are kept, giving a garbage value.
+
+---
+
+## 🟣 CATEGORY 4 — char Arithmetic Traps
+
+---
+
+### ❓ Q18. What is the output?
+
+```java
+char c = 'A';
+System.out.println(c + 1);
+System.out.println((char)(c + 1));
+System.out.println("" + c + 1);
+System.out.println(c + "" + 1);
+```
+
+**Answer:**
+```
+66
+B
+A1
+A1
+```
+
+Line 1: `char + int` → promotes to `int` → `65 + 1 = 66`
+Line 2: cast back to `char` → `'B'`
+Line 3: `"" + c` → String `"A"`, then `"A" + 1` → `"A1"`
+Line 4: same — `c + ""` → `"A"`, then `"A" + 1` → `"A1"`
+
+---
+
+### ❓ Q19. What is the output?
+
+```java
+char a = 'a';
+char z = 'z';
+System.out.println(z - a);
+System.out.println((char)(a - 32));
+```
+
+**Answer:**
+```
+25
+A
+```
+
+`'z' - 'a'` = `122 - 97` = `25` (number of steps from 'a' to 'z')
+`'a' - 32` = `97 - 32` = `65` = `'A'` (lowercase to uppercase trick)
+
+---
+
+### ❓ Q20. What is the output?
+
+```java
+char c = '\u0000';
+System.out.println((int) c);
+System.out.println(c == 0);
+```
+
+**Answer:**
+```
+0
+true
+```
+
+`'\u0000'` is the null character — the default value of `char`.
+Its numeric value is `0`, so `c == 0` is `true`.
+
+---
+
+## ⚪ CATEGORY 5 — Boolean & Logical Traps
+
+---
+
+### ❓ Q21. Will this compile?
+
+```java
+int x = 1;
+if (x) {
+    System.out.println("true");
+}
+```
+
+**Answer:** ❌ Compile error.
+
+In Java, `boolean` and `int` are **completely separate types**.
+`if` requires a `boolean` expression — `int` cannot be used as a condition (unlike C/C++).
+
+**Fix:**
+```java
+if (x == 1) { ... }  // or
+if (x != 0) { ... }
+```
+
+---
+
+### ❓ Q22. What is the output?
+
+```java
+boolean b = true;
+System.out.println(b + " is the answer");
+```
+
+**Answer:** `true is the answer`
+
+`boolean` can be concatenated into a String. Java calls `String.valueOf(b)` internally.
+
+---
+
+### ❓ Q23. What is the output?
+
+```java
+int x = 5;
+boolean result = (x > 3) && (x++ < 10);
+System.out.println(x);
+```
+
+**Answer:** `6`
+
+`x > 3` is `true`, so the right side `x++ < 10` IS evaluated (short-circuit doesn't skip).
+`x++` post-increments `x` from `5` to `6`.
+
+Now compare:
+```java
+boolean result = (x > 10) && (x++ < 10);
+System.out.println(x);  // 5 — right side NOT evaluated (short-circuit &&)
+```
+
+---
+
+### ❓ Q24. What is the output?
+
+```java
+boolean a = true;
+boolean b = false;
+System.out.println(a | b);    // OR
+System.out.println(a || b);   // short-circuit OR
+System.out.println(a & b);    // AND
+System.out.println(a && b);   // short-circuit AND
+System.out.println(a ^ b);    // XOR
+```
+
+**Answer:**
+```
+true
+true
+false
+false
+true
+```
+
+`|` and `&` — **non-short-circuit**: evaluate BOTH sides always
+`||` and `&&` — **short-circuit**: skip right side if result already determined
+`^` — XOR: `true` only when both sides are DIFFERENT
+
+---
+
+## 🟤 CATEGORY 6 — Mixed Expression & Casting Traps
+
+---
+
+### ❓ Q25. What is the output?
+
+```java
+System.out.println(10 + 20 + "30");
+System.out.println("10" + 20 + 30);
+```
+
+**Answer:**
+```
+3030
+102030
+```
+
+Line 1: `10 + 20` → `30` (int+int), then `30 + "30"` → `"3030"` (int+String)
+Line 2: `"10" + 20` → `"1020"` (String+int), then `"1020" + 30` → `"102030"`
+
+Expression is evaluated **left to right**. Once a `String` appears, everything after is concatenated.
+
+---
+
+### ❓ Q26. What is the output?
+
+```java
+int x = 10;
+int y = x++;
+System.out.println(x);
+System.out.println(y);
+```
+
+**Answer:**
+```
+11
+10
+```
+
+`x++` is **post-increment**: `y` gets the original value `10`, THEN `x` becomes `11`.
+
+Compare with pre-increment:
+```java
+int x = 10;
+int y = ++x;  // pre-increment
+System.out.println(x);  // 11
+System.out.println(y);  // 11 — y gets the incremented value
+```
+
+---
+
+### ❓ Q27. What is the output?
+
+```java
+int a = 5;
+int b = a++ + ++a;
+System.out.println(a);
+System.out.println(b);
+```
+
+**Answer:**
+```
+7
+12
+```
+
+Step by step:
+1. `a++` → uses `5`, then increments a to `6`
+2. `++a` → increments a to `7`, then uses `7`
+3. `b = 5 + 7 = 12`
+4. `a` is now `7`
+
+---
+
+### ❓ Q28. What is the output?
+
+```java
+int x = 10;
+x += 1.9;
+System.out.println(x);
+```
+
+**Answer:** `11`
+
+`+=` with a different type includes an **implicit cast**.
+`x += 1.9` is equivalent to `x = (int)(x + 1.9)` = `(int)(11.9)` = `11`.
+The decimal is truncated, NOT rounded.
+
+---
+
+### ❓ Q29. What is the output?
+
+```java
+System.out.println(Integer.parseInt("FF", 16));
+System.out.println(Integer.parseInt("1010", 2));
+System.out.println(Integer.toBinaryString(255));
+System.out.println(Integer.toHexString(255));
+System.out.println(Integer.toOctalString(255));
+```
+
+**Answer:**
+```
+255
+10
+11111111
+ff
+377
+```
+
+`parseInt(str, radix)` — parses string in given base.
+`toBinaryString`, `toHexString`, `toOctalString` — converts int to that base as String.
+
+---
+
+### ❓ Q30. What is the output?
+
+```java
+int x = 0;
+int y = (x != 0) ? (10 / x) : 99;
+System.out.println(y);
+```
+
+**Answer:** `99`
+
+Ternary operator is **short-circuit** — `10 / x` (division by zero) is NEVER evaluated
+because `x != 0` is `false`. The `else` branch `99` is taken directly.
+
+---
+
+## 🔥 BONUS — Classic Overflow Interview Trap
+
+### ❓ Q31. Find the bug:
+
+```java
+public int midpoint(int low, int high) {
+    return (low + high) / 2;
+}
+```
+
+**Answer:** Hidden overflow bug!
+
+If `low = 1_000_000_000` and `high = 2_000_000_000`:
+`low + high = 3_000_000_000` → **overflows `int`** → negative number → wrong midpoint!
+
+**Fix (used in Java's own `Arrays.binarySearch`):**
+```java
+return low + (high - low) / 2;  // ✅ no overflow
+// OR
+return (low + high) >>> 1;      // ✅ unsigned right shift trick
+```
+
+> This exact bug existed in Java's standard library `Arrays.binarySearch()` for nearly a decade before being discovered and fixed!
+
+---
+
+### ❓ Q32. What is the output?
+
+```java
+int i = 1;
+i = i++ + i++;
+System.out.println(i);
+```
+
+**Answer:** `3`
+
+Step by step (left to right evaluation):
+1. First `i++` → uses `1`, then i becomes `2`
+2. Second `i++` → uses `2`, then i becomes `3`
+3. `i = 1 + 2 = 3`
+4. Final assignment: `i = 3`
+
+> ⚠️ This type of code is terrible practice — never write this in real code. But examiners love it!
+
+---
+
+## 📝 Summary — Key Rules to Remember
+
+```
+OVERFLOW RULES
+──────────────────────────────────────────────────────────────
+✅  int overflow     → wraps silently (no exception)
+✅  byte overflow    → wraps silently
+✅  double / 0.0    → Infinity (no exception)
+✅  int / 0         → ArithmeticException ❌
+✅  0.0 / 0.0       → NaN
+✅  NaN == NaN      → false (always!)
+✅  Use BigDecimal  → for exact decimal arithmetic
+
+TYPE PROMOTION RULES
+──────────────────────────────────────────────────────────────
+✅  byte/short/char  → promoted to int in arithmetic
+✅  int + long       → long
+✅  int + double     → double
+✅  float + double   → double
+✅  Compound ops     → implicit narrowing cast (x += 1.9)
+✅  String + any     → String (left to right)
+
+CASTING RULES
+──────────────────────────────────────────────────────────────
+✅  Widening  → automatic (int→long, float→double)
+✅  Narrowing → explicit cast required, data may be lost
+✅  Truncation → NOT rounding (9.99 → 9)
+✅  byte cast  → value % 256, adjusted for sign
+```
+
+---
+
 
 
