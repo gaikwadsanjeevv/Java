@@ -3440,6 +3440,1452 @@ TERNARY vs IF-ELSE:
 ```
 
 ---
+# 3.7 — `instanceof` Operator in Java
+
+> 📘 *Reference: Java The Complete Reference — Herbert Schildt*
+
+---
+
+## 📌 What is `instanceof`?
+
+`instanceof` is a **type-checking operator** in Java.
+It checks whether an object is an **instance of a specific class,
+subclass, or interface** — and returns `true` or `false`.
+
+```
+object instanceof ClassName
+   ▲                  ▲
+reference           class /
+variable          interface /
+                  superclass
+```
+
+It answers the question:
+> *"Is this object of type X (or a subclass of X)?"*
+
+---
+
+## 🔵 1. Basic Syntax & Usage
+
+```java
+public class InstanceofBasic {
+    public static void main(String[] args) {
+
+        // ── Basic check ───────────────────────────────
+        String  name   = "Alice";
+        Integer number = 42;
+        Object  obj    = "Hello";
+
+        System.out.println(name   instanceof String);   // true
+        System.out.println(number instanceof Integer);  // true
+        System.out.println(obj    instanceof String);   // true  (obj holds a String)
+        System.out.println(obj    instanceof Integer);  // false (obj holds String, not Integer)
+
+        // ── With inheritance ──────────────────────────
+        // Every class in Java extends Object
+        System.out.println(name instanceof Object);     // true  (String IS-A Object)
+        System.out.println(number instanceof Object);   // true  (Integer IS-A Object)
+        System.out.println(number instanceof Number);   // true  (Integer IS-A Number)
+
+        // ── Checking arrays ───────────────────────────
+        int[]    intArr = {1, 2, 3};
+        String[] strArr = {"a", "b"};
+
+        System.out.println(intArr instanceof int[]);    // true
+        System.out.println(strArr instanceof Object);   // true (arrays are Objects)
+        System.out.println(strArr instanceof String[]); // true
+    }
+}
+```
+
+---
+
+## 🟢 2. `instanceof` with Inheritance Hierarchy
+
+This is where `instanceof` becomes powerful — checking types across class hierarchies.
+
+```java
+public class InheritanceCheck {
+
+    // ── Class hierarchy ───────────────────────────
+    static class Animal {
+        void sound() { System.out.println("Some sound"); }
+    }
+
+    static class Dog extends Animal {
+        void fetch() { System.out.println("Fetching ball! 🎾"); }
+    }
+
+    static class Cat extends Animal {
+        void purr() { System.out.println("Purring... 😺"); }
+    }
+
+    static class Labrador extends Dog {
+        void guide() { System.out.println("Guiding owner 🦮"); }
+    }
+
+    public static void main(String[] args) {
+
+        Animal  a  = new Animal();
+        Dog     d  = new Dog();
+        Cat     c  = new Cat();
+        Labrador l = new Labrador();
+
+        // ── Dog checks ────────────────────────────────
+        System.out.println("=== Dog checks ===");
+        System.out.println(d instanceof Dog);     // true  (Dog IS-A Dog)
+        System.out.println(d instanceof Animal);  // true  (Dog IS-A Animal)
+        System.out.println(d instanceof Object);  // true  (Dog IS-A Object)
+        System.out.println(d instanceof Cat);     // false (Dog is NOT a Cat)
+
+        // ── Labrador checks (3 levels deep) ──────────
+        System.out.println("\n=== Labrador checks ===");
+        System.out.println(l instanceof Labrador); // true
+        System.out.println(l instanceof Dog);      // true  (Labrador IS-A Dog)
+        System.out.println(l instanceof Animal);   // true  (Labrador IS-A Animal)
+        System.out.println(l instanceof Object);   // true  (everything IS-A Object)
+        System.out.println(l instanceof Cat);      // false
+
+        // ── Animal reference holding Dog object ───────
+        System.out.println("\n=== Polymorphic reference ===");
+        Animal polyAnimal = new Dog();              // Animal ref, Dog object
+        System.out.println(polyAnimal instanceof Dog);    // true  (actual object is Dog)
+        System.out.println(polyAnimal instanceof Animal); // true
+        System.out.println(polyAnimal instanceof Cat);    // false
+
+        // ── null always returns false ─────────────────
+        System.out.println("\n=== null check ===");
+        Animal nullAnimal = null;
+        System.out.println(nullAnimal instanceof Animal); // false (null is never instanceof anything)
+        System.out.println(nullAnimal instanceof Object); // false
+        // No NullPointerException! instanceof handles null safely
+    }
+}
+```
+
+---
+
+## 🟡 3. `instanceof` with Interfaces
+
+```java
+public class InterfaceCheck {
+
+    interface Flyable   { void fly();   }
+    interface Swimmable { void swim();  }
+    interface Runnable  { void run();   }
+
+    static class Bird implements Flyable, Runnable {
+        public void fly() { System.out.println("Bird flying 🐦"); }
+        public void run() { System.out.println("Bird running"); }
+    }
+
+    static class Duck extends Bird implements Swimmable {
+        public void swim() { System.out.println("Duck swimming 🦆"); }
+    }
+
+    static class Fish implements Swimmable {
+        public void swim() { System.out.println("Fish swimming 🐟"); }
+    }
+
+    public static void main(String[] args) {
+
+        Duck duck = new Duck();
+        Bird bird = new Bird();
+        Fish fish = new Fish();
+
+        // ── Duck implements multiple interfaces ───────
+        System.out.println("=== Duck ===");
+        System.out.println(duck instanceof Flyable);    // true  (via Bird)
+        System.out.println(duck instanceof Swimmable);  // true  (Duck implements it)
+        System.out.println(duck instanceof Runnable);   // true  (via Bird)
+        System.out.println(duck instanceof Bird);       // true  (extends Bird)
+
+        // ── Bird ──────────────────────────────────────
+        System.out.println("\n=== Bird ===");
+        System.out.println(bird instanceof Flyable);    // true
+        System.out.println(bird instanceof Swimmable);  // false (Bird doesn't swim)
+
+        // ── Fish ──────────────────────────────────────
+        System.out.println("\n=== Fish ===");
+        System.out.println(fish instanceof Swimmable);  // true
+        System.out.println(fish instanceof Flyable);    // false
+
+        // ── Real world: process objects based on capability ──
+        Object[] creatures = {new Duck(), new Bird(), new Fish()};
+        System.out.println("\n=== Processing by capability ===");
+        for (Object creature : creatures) {
+            System.out.print(creature.getClass().getSimpleName() + ": ");
+            if (creature instanceof Flyable)   System.out.print("can fly ✈ ");
+            if (creature instanceof Swimmable) System.out.print("can swim 🏊 ");
+            if (creature instanceof Runnable)  System.out.print("can run 🏃 ");
+            System.out.println();
+        }
+        // Duck:  can fly ✈ can swim 🏊 can run 🏃
+        // Bird:  can fly ✈ can run 🏃
+        // Fish:  can swim 🏊
+    }
+}
+```
+
+---
+
+## 🔴 4. `instanceof` Before Casting — Safe Downcasting
+
+The most **common real-world use** of `instanceof` is to check type
+**before downcasting** to avoid `ClassCastException`.
+
+```java
+public class SafeCasting {
+
+    static class Shape {
+        double area() { return 0; }
+    }
+
+    static class Circle extends Shape {
+        double radius;
+        Circle(double r) { this.radius = r; }
+
+        @Override
+        double area() { return Math.PI * radius * radius; }
+        void   draw() { System.out.println("Drawing Circle ⭕"); }
+    }
+
+    static class Rectangle extends Shape {
+        double width, height;
+        Rectangle(double w, double h) { this.width = w; this.height = h; }
+
+        @Override
+        double area() { return width * height; }
+        void   draw() { System.out.println("Drawing Rectangle ▬"); }
+    }
+
+    static class Triangle extends Shape {
+        double base, height;
+        Triangle(double b, double h) { this.base = b; this.height = h; }
+
+        @Override
+        double area() { return 0.5 * base * height; }
+        void   draw() { System.out.println("Drawing Triangle △"); }
+    }
+
+    // Process any Shape — use instanceof before downcasting
+    static void processShape(Shape shape) {
+        System.out.println("Area: " + String.format("%.2f", shape.area()));
+
+        // ❌ WITHOUT instanceof — dangerous!
+        // Circle c = (Circle) shape;  // ClassCastException if shape is Rectangle!
+
+        // ✅ WITH instanceof — safe downcast
+        if (shape instanceof Circle) {
+            Circle c = (Circle) shape;           // safe downcast
+            System.out.println("Radius: " + c.radius);
+            c.draw();
+        } else if (shape instanceof Rectangle) {
+            Rectangle r = (Rectangle) shape;     // safe downcast
+            System.out.printf("Width: %.1f, Height: %.1f%n", r.width, r.height);
+            r.draw();
+        } else if (shape instanceof Triangle) {
+            Triangle t = (Triangle) shape;
+            System.out.printf("Base: %.1f, Height: %.1f%n", t.base, t.height);
+            t.draw();
+        }
+        System.out.println();
+    }
+
+    public static void main(String[] args) {
+
+        // Polymorphic array — holds different Shape types
+        Shape[] shapes = {
+            new Circle(5.0),
+            new Rectangle(4.0, 6.0),
+            new Triangle(3.0, 8.0)
+        };
+
+        System.out.println("=== Shape Processor ===");
+        for (Shape s : shapes) {
+            System.out.println("--- " + s.getClass().getSimpleName() + " ---");
+            processShape(s);
+        }
+    }
+}
+```
+
+**Output:**
+```
+=== Shape Processor ===
+--- Circle ---
+Area: 78.54
+Radius: 5.0
+Drawing Circle ⭕
+
+--- Rectangle ---
+Area: 24.00
+Width: 4.0, Height: 6.0
+Drawing Rectangle ▬
+
+--- Triangle ---
+Area: 12.00
+Base: 3.0, Height: 8.0
+Drawing Triangle △
+```
+
+---
+
+## ⚡ 5. Pattern Matching `instanceof` (Java 16+)
+
+Java 16 introduced **pattern matching** for `instanceof` — eliminates
+the need to cast after checking. The cast variable is declared directly
+in the `instanceof` expression!
+
+```java
+public class PatternMatching {
+
+    static class Employee {
+        String name;
+        double salary;
+        Employee(String n, double s) { name = n; salary = s; }
+    }
+
+    static class Manager extends Employee {
+        int teamSize;
+        Manager(String n, double s, int t) { super(n, s); teamSize = t; }
+        double bonus() { return salary * 0.20; }  // 20% bonus
+    }
+
+    static class Developer extends Employee {
+        String language;
+        Developer(String n, double s, String l) { super(n, s); language = l; }
+        double bonus() { return salary * 0.15; }  // 15% bonus
+    }
+
+    static class Intern extends Employee {
+        int durationMonths;
+        Intern(String n, double s, int d) { super(n, s); durationMonths = d; }
+        // no bonus for interns
+    }
+
+    public static void main(String[] args) {
+
+        Employee[] team = {
+            new Manager("Alice",   120000, 8),
+            new Developer("Bob",    95000, "Java"),
+            new Intern("Charlie",   25000, 6),
+            new Manager("Diana",   135000, 12),
+            new Developer("Eve",    88000, "Python")
+        };
+
+        System.out.println("╔═══════════════════════════════════════╗");
+        System.out.println("║         EMPLOYEE BONUS REPORT         ║");
+        System.out.println("╚═══════════════════════════════════════╝");
+
+        double totalBonus = 0;
+
+        for (Employee emp : team) {
+
+            // ── Old style (Java < 16) ──────────────────
+            // if (emp instanceof Manager) {
+            //     Manager m = (Manager) emp;   // explicit cast needed
+            //     ...
+            // }
+
+            // ── New style: Pattern Matching (Java 16+) ─
+            // Cast variable declared directly in instanceof!
+            if (emp instanceof Manager m) {
+                // 'm' is already cast to Manager — no explicit cast needed!
+                System.out.printf("Manager   %-10s | Team: %2d | Salary: ₹%,8.0f | Bonus: ₹%,8.0f%n",
+                    m.name, m.teamSize, m.salary, m.bonus());
+                totalBonus += m.bonus();
+
+            } else if (emp instanceof Developer d) {
+                // 'd' is already cast to Developer
+                System.out.printf("Developer %-10s | Lang: %-6s | Salary: ₹%,8.0f | Bonus: ₹%,8.0f%n",
+                    d.name, d.language, d.salary, d.bonus());
+                totalBonus += d.bonus();
+
+            } else if (emp instanceof Intern i) {
+                // 'i' is already cast to Intern
+                System.out.printf("Intern    %-10s | Dur:  %2d mo | Salary: ₹%,8.0f | Bonus: ₹%8s%n",
+                    i.name, i.durationMonths, i.salary, "N/A");
+            }
+        }
+
+        System.out.println("───────────────────────────────────────");
+        System.out.printf("Total Bonuses Paid: ₹%,.0f%n", totalBonus);
+    }
+}
+```
+
+**Output:**
+```
+╔═══════════════════════════════════════╗
+║         EMPLOYEE BONUS REPORT         ║
+╚═══════════════════════════════════════╝
+Manager   Alice      | Team:  8 | Salary: ₹1,20,000 | Bonus: ₹24,000
+Developer Bob        | Lang: Java   | Salary: ₹95,000 | Bonus: ₹14,250
+Intern    Charlie    | Dur:   6 mo | Salary: ₹25,000 | Bonus:      N/A
+Manager   Diana      | Team: 12 | Salary: ₹1,35,000 | Bonus: ₹27,000
+Developer Eve        | Lang: Python | Salary: ₹88,000 | Bonus: ₹13,200
+───────────────────────────────────────
+Total Bonuses Paid: ₹78,450
+```
+
+---
+
+## 🌍 Real World Project — Notification System
+
+```java
+public class NotificationSystem {
+
+    // Different notification types
+    interface Notification {
+        String getMessage();
+        String getRecipient();
+    }
+
+    static class EmailNotification implements Notification {
+        String to, subject, body;
+        EmailNotification(String to, String subject, String body) {
+            this.to = to; this.subject = subject; this.body = body;
+        }
+        public String getMessage()   { return body; }
+        public String getRecipient() { return to; }
+        void send() {
+            System.out.printf("📧 Email → %s | Subject: %s%n", to, subject);
+        }
+    }
+
+    static class SMSNotification implements Notification {
+        String phone, text;
+        SMSNotification(String phone, String text) {
+            this.phone = phone; this.text = text;
+        }
+        public String getMessage()   { return text; }
+        public String getRecipient() { return phone; }
+        void send() {
+            System.out.printf("📱 SMS   → %s | Message: %s%n", phone, text);
+        }
+    }
+
+    static class PushNotification implements Notification {
+        String deviceId, title, body;
+        PushNotification(String deviceId, String title, String body) {
+            this.deviceId = deviceId; this.title = title; this.body = body;
+        }
+        public String getMessage()   { return body; }
+        public String getRecipient() { return deviceId; }
+        void send() {
+            System.out.printf("🔔 Push  → Device:%s | Title: %s%n", deviceId, title);
+        }
+    }
+
+    // Dispatcher — uses instanceof to route correctly
+    static void dispatch(Notification n) {
+        // Pattern matching instanceof (Java 16+)
+        if      (n instanceof EmailNotification e) e.send();
+        else if (n instanceof SMSNotification   s) s.send();
+        else if (n instanceof PushNotification  p) p.send();
+        else System.out.println("Unknown notification type!");
+    }
+
+    public static void main(String[] args) {
+
+        // Queue of mixed notification types
+        Notification[] queue = {
+            new EmailNotification("alice@gmail.com", "Order Confirmed", "Your order #1234 is confirmed."),
+            new SMSNotification("+91-9876543210", "OTP: 482910"),
+            new PushNotification("device-abc-123", "Flash Sale!", "Up to 70% off — ends in 2 hrs"),
+            new EmailNotification("bob@company.com", "Meeting Reminder", "Daily standup at 10 AM."),
+            new SMSNotification("+91-8765432109", "Your delivery is on the way 🚚"),
+        };
+
+        System.out.println("╔════════════════════════════════════════╗");
+        System.out.println("║       NOTIFICATION DISPATCHER          ║");
+        System.out.println("╚════════════════════════════════════════╝");
+
+        int emails = 0, sms = 0, push = 0;
+
+        for (Notification n : queue) {
+            dispatch(n);
+
+            // Count by type using instanceof
+            if (n instanceof EmailNotification) emails++;
+            else if (n instanceof SMSNotification) sms++;
+            else if (n instanceof PushNotification) push++;
+        }
+
+        System.out.println("────────────────────────────────────────");
+        System.out.printf("Sent: %d Email | %d SMS | %d Push%n",
+                          emails, sms, push);
+    }
+}
+```
+
+**Output:**
+```
+╔════════════════════════════════════════╗
+║       NOTIFICATION DISPATCHER          ║
+╚════════════════════════════════════════╝
+📧 Email → alice@gmail.com | Subject: Order Confirmed
+📱 SMS   → +91-9876543210  | Message: OTP: 482910
+🔔 Push  → Device:device-abc-123 | Title: Flash Sale!
+📧 Email → bob@company.com | Subject: Meeting Reminder
+📱 SMS   → +91-8765432109  | Message: Your delivery is on the way 🚚
+────────────────────────────────────────
+Sent: 2 Email | 2 SMS | 1 Push
+```
+
+---
+
+## 🎯 Tricky Interview Questions
+
+---
+
+### ❓ Q1. What is the output?
+
+```java
+Object obj = "Hello";
+System.out.println(obj instanceof String);
+System.out.println(obj instanceof Object);
+System.out.println(obj instanceof Integer);
+```
+
+**Answer:**
+```
+true
+true
+false
+```
+`obj` holds a `String` at runtime. `String` IS-A `Object` → both true.
+`String` is NOT an `Integer` → false.
+
+---
+
+### ❓ Q2. What is the output?
+
+```java
+String s = null;
+System.out.println(s instanceof String);
+System.out.println(s instanceof Object);
+```
+
+**Answer:**
+```
+false
+false
+```
+`null` is **never** an instance of anything. `instanceof` always returns
+`false` for `null` — and does NOT throw `NullPointerException`.
+
+---
+
+### ❓ Q3. Will this compile?
+
+```java
+String s = "Hello";
+System.out.println(s instanceof Integer);
+```
+
+**Answer:** ❌ **Compile error!**
+
+The compiler knows `String` and `Integer` are unrelated classes —
+`String` cannot possibly be an `Integer`. Java catches this at **compile time**.
+
+Compare with:
+```java
+Object o = "Hello";
+System.out.println(o instanceof Integer);  // ✅ compiles → false at runtime
+```
+`Object` could hold anything, so compiler allows it.
+
+---
+
+### ❓ Q4. What is the output?
+
+```java
+class A {}
+class B extends A {}
+class C extends B {}
+
+C obj = new C();
+System.out.println(obj instanceof A);
+System.out.println(obj instanceof B);
+System.out.println(obj instanceof C);
+```
+
+**Answer:**
+```
+true
+true
+true
+```
+`C` extends `B` extends `A`. So `C` IS-A `B` IS-A `A`.
+`instanceof` checks the entire inheritance chain — all three return `true`.
+
+---
+
+### ❓ Q5. What is the output?
+
+```java
+class Animal {}
+class Dog extends Animal {}
+
+Animal a = new Dog();   // polymorphic reference
+System.out.println(a instanceof Dog);
+System.out.println(a instanceof Animal);
+
+Animal b = new Animal();
+System.out.println(b instanceof Dog);
+```
+
+**Answer:**
+```
+true
+true
+false
+```
+`a` holds a `Dog` object → `instanceof Dog` is `true`.
+`b` holds an actual `Animal` → `instanceof Dog` is `false`.
+`instanceof` checks the **actual runtime object**, not the reference type.
+
+---
+
+### ❓ Q6. What is the difference between old-style and pattern matching `instanceof`?
+
+```java
+// Old style (Java < 16)
+Object obj = "Hello World";
+if (obj instanceof String) {
+    String s = (String) obj;     // explicit cast needed
+    System.out.println(s.length());
+}
+
+// Pattern matching (Java 16+)
+if (obj instanceof String s) {   // cast variable declared inline!
+    System.out.println(s.length());  // 's' is already String, no cast
+}
+```
+
+**Answer:** Both output `11`. Pattern matching is cleaner — no need for
+the separate cast line. The variable `s` is scoped to the `if` block.
+
+---
+
+### ❓ Q7. What is the output?
+
+```java
+interface Flyable {}
+class Bird implements Flyable {}
+class Eagle extends Bird {}
+
+Eagle e = new Eagle();
+System.out.println(e instanceof Flyable);
+System.out.println(e instanceof Bird);
+System.out.println(e instanceof Eagle);
+```
+
+**Answer:**
+```
+true
+true
+true
+```
+`Eagle` extends `Bird` which implements `Flyable`.
+So `Eagle` IS-A `Bird` IS-A `Flyable` — all true through the chain.
+
+---
+
+### ❓ Q8. What happens here?
+
+```java
+Object obj = new Integer(42);
+if (obj instanceof String s) {
+    System.out.println("String: " + s);
+} else {
+    System.out.println("Not a String");
+}
+```
+
+**Answer:** `Not a String`
+
+`obj` holds `Integer`, not `String`. Pattern matching check fails →
+`s` is never bound → `else` branch executes.
+
+---
+
+## 📝 Summary
+
+```
+instanceof OPERATOR QUICK REFERENCE
+──────────────────────────────────────────────────────────────────
+Syntax:   object instanceof ClassName  → returns boolean
+
+RULES:
+✅  Returns true  if object is instance of class/subclass/interface
+✅  Returns false if object is null (no NullPointerException!)
+✅  Checks actual RUNTIME type, not reference type
+✅  Works across full inheritance chain (A→B→C: C instanceof A = true)
+✅  Works with interfaces too
+✅  Compile error if types are provably incompatible (String instanceof Integer)
+
+MAIN USE CASES:
+✅  Safe downcasting    → check before cast to avoid ClassCastException
+✅  Type routing        → process different subtypes differently
+✅  Plugin/handler      → dispatch to correct handler by type
+✅  Polymorphic arrays  → identify actual type at runtime
+
+PATTERN MATCHING (Java 16+):
+✅  if (obj instanceof String s) { ... }
+✅  No explicit cast needed — 's' is already the right type
+✅  Variable 's' is scoped to the if-block
+✅  Cleaner, less error-prone
+
+OLD vs NEW:
+❌  Old: if (x instanceof Foo) { Foo f = (Foo) x; f.method(); }
+✅  New: if (x instanceof Foo f) { f.method(); }
+```
+
+---
+
+# 3.8 — Operator Precedence & Tricky Expressions in Java
+
+> 📘 *Reference: Java The Complete Reference — Herbert Schildt*
+
+---
+
+## 📌 What is Operator Precedence?
+
+When an expression has **multiple operators**, Java follows a fixed set of rules
+to decide **which operation happens first** — just like BODMAS in mathematics.
+
+```
+2 + 3 * 4    →   2 + (3 * 4)   →   2 + 12   →   14
+              NOT (2 + 3) * 4   →   5 * 4    →   20
+```
+
+**Precedence** = which operator binds tighter (evaluated first)
+**Associativity** = when same-precedence operators appear, which direction to evaluate
+
+---
+
+## 📊 Complete Precedence Table (High → Low)
+
+| Level | Operators | Associativity | Description |
+|-------|-----------|---------------|-------------|
+| 1 (Highest) | `()` `[]` `.` | Left → Right | Parentheses, array access, member access |
+| 2 | `++` `--` (postfix) | Left → Right | Post-increment, post-decrement |
+| 3 | `++` `--` (prefix) `+` `-` `~` `!` | Right → Left | Pre-increment, unary, bitwise NOT, logical NOT |
+| 4 | `*` `/` `%` | Left → Right | Multiplication, division, modulus |
+| 5 | `+` `-` | Left → Right | Addition, subtraction |
+| 6 | `<<` `>>` `>>>` | Left → Right | Shift operators |
+| 7 | `<` `<=` `>` `>=` `instanceof` | Left → Right | Relational, type check |
+| 8 | `==` `!=` | Left → Right | Equality |
+| 9 | `&` | Left → Right | Bitwise AND |
+| 10 | `^` | Left → Right | Bitwise XOR |
+| 11 | `\|` | Left → Right | Bitwise OR |
+| 12 | `&&` | Left → Right | Logical AND |
+| 13 | `\|\|` | Left → Right | Logical OR |
+| 14 | `? :` | Right → Left | Ternary |
+| 15 (Lowest) | `=` `+=` `-=` `*=` `/=` etc. | Right → Left | Assignment |
+
+> 💡 **Memory trick:** **P**lease **U**se **M**y **S**hiny **S**ilver **R**ocket **R**ocket **E**xcel **X**tra **O**range **A**nd **T**angy **A**vocados
+> (Parens, Unary, Mult/Div/Mod, Shift, Shift, Relational, Equal, Xor, Or, And, Ternary, Assignment)
+
+---
+
+## 🔵 1. Arithmetic Precedence
+
+```java
+public class ArithmeticPrecedence {
+    public static void main(String[] args) {
+
+        // ── Rule: * / % before + - ────────────────────
+        int a = 2 + 3 * 4;
+        //        2 + (3*4)
+        //        2 + 12 = 14
+        System.out.println("2 + 3 * 4 = " + a);     // 14
+
+        int b = 10 - 6 / 2;
+        //        10 - (6/2)
+        //        10 - 3 = 7
+        System.out.println("10 - 6 / 2 = " + b);    // 7
+
+        int c = 10 % 3 + 4 * 2;
+        //        (10%3) + (4*2)
+        //          1   +   8   = 9
+        System.out.println("10 % 3 + 4 * 2 = " + c); // 9
+
+        // ── Parentheses override everything ───────────
+        int d = (2 + 3) * 4;
+        //        (5)   * 4 = 20
+        System.out.println("(2 + 3) * 4 = " + d);    // 20
+
+        int e = (10 - 6) / 2;
+        //         4    / 2 = 2
+        System.out.println("(10 - 6) / 2 = " + e);   // 2
+
+        // ── Left-to-right for same precedence ─────────
+        int f = 20 / 4 * 2;
+        //        (20/4) * 2     (left to right!)
+        //          5   * 2 = 10
+        System.out.println("20 / 4 * 2 = " + f);     // 10
+        // NOT 20 / (4*2) = 20/8 = 2
+
+        int g = 20 - 5 + 3;
+        //        (20-5) + 3     (left to right!)
+        //          15   + 3 = 18
+        System.out.println("20 - 5 + 3 = " + g);     // 18
+        // NOT 20 - (5+3) = 20-8 = 12
+
+        // ── Real world: formula evaluation ────────────
+        // Compound interest formula: A = P * (1 + r/n)^nt
+        double P = 10000;   // principal
+        double r = 0.08;    // annual rate
+        int    n = 12;      // compounding months
+        int    t = 2;       // years
+        // Must use parentheses correctly!
+        double A = P * Math.pow(1 + r / n, n * t);
+        System.out.printf("%nCompound Interest: ₹%.2f%n", A);  // ₹11728.88
+    }
+}
+```
+
+---
+
+## 🟢 2. Unary Operators Precedence
+
+Unary operators (`++`, `--`, `+`, `-`, `~`, `!`) have very high precedence.
+
+```java
+public class UnaryPrecedence {
+    public static void main(String[] args) {
+
+        // ── Unary minus vs subtraction ─────────────────
+        int a = 5;
+        int b = -a + 3;     // (-a) + 3 = -5 + 3 = -2  (unary first)
+        System.out.println("-a + 3 = " + b);    // -2
+
+        // ── ! with comparison ─────────────────────────
+        boolean x = !5 > 3;     // ❌ Compile error: ! applies to 5 (int), not valid
+        // ↑ This would fail — ! only works on boolean
+
+        boolean y = !(5 > 3);   // !(true) = false  (parentheses fix it)
+        System.out.println("!(5 > 3) = " + y);  // false
+
+        // ── Prefix vs postfix precedence ───────────────
+        int c = 5;
+        int d = -c++;           // -(c++) = -(5) = -5, then c becomes 6
+        System.out.println("d = " + d + ", c = " + c);  // d=-5, c=6
+
+        int e = 5;
+        int f = -++e;           // -(++e) = -(6) = -6, e is now 6
+        System.out.println("f = " + f + ", e = " + e);  // f=-6, e=6
+
+        // ── ~ (bitwise NOT) before arithmetic ──────────
+        int g = ~3 + 1;         // (~3) + 1 = -4 + 1 = -3
+        System.out.println("~3 + 1 = " + g);    // -3
+
+        int h = ~(3 + 1);       // ~(4) = -5
+        System.out.println("~(3 + 1) = " + h);  // -5
+    }
+}
+```
+
+---
+
+## 🟡 3. Shift vs Arithmetic vs Relational Precedence
+
+```java
+public class ShiftPrecedence {
+    public static void main(String[] args) {
+
+        // ── Arithmetic before shift ────────────────────
+        int a = 1 + 2 << 3;
+        //        (1+2) << 3     arithmetic first!
+        //           3  << 3 = 24
+        System.out.println("1 + 2 << 3 = " + a);    // 24
+
+        int b = 1 << 2 + 3;
+        //        1 << (2+3)     arithmetic first!
+        //        1 << 5 = 32
+        System.out.println("1 << 2 + 3 = " + b);    // 32
+
+        // ── Shift before relational ────────────────────
+        boolean c = 8 >> 1 > 3;
+        //           (8>>1) > 3    shift before >
+        //              4   > 3 = true
+        System.out.println("8 >> 1 > 3 = " + c);    // true
+
+        // ── Relational before equality ─────────────────
+        boolean d = 5 > 3 == true;
+        //           (5 > 3) == true    relational first
+        //              true == true = true
+        System.out.println("5 > 3 == true = " + d); // true
+
+        // ── Equality before bitwise AND ────────────────
+        int result = 5 & 3 == 1;   // ❌ Compile error in some contexts
+        // 3 == 1 evaluated first (equality before &)
+        // 5 & false → type mismatch
+        // Always use parentheses for clarity!
+        int safe = (5 & 3) == 1 ? 1 : 0;
+        //            1    == 1 → true → 1
+        System.out.println("(5 & 3) == 1: " + (safe == 1));  // true
+    }
+}
+```
+
+---
+
+## 🔴 4. Logical Operators Precedence
+
+`!` > `&&` > `||` — this order is critical and heavily tested!
+
+```java
+public class LogicalPrecedence {
+    public static void main(String[] args) {
+
+        // ── ! has highest precedence among logical ops ─
+        boolean a = !true || false;
+        //           (!true) || false    ! first
+        //             false || false = false
+        System.out.println("!true || false = " + a);     // false
+
+        boolean b = !(true || false);
+        //           !(true) = false     parentheses first
+        System.out.println("!(true || false) = " + b);   // false
+
+        // ── && before || ──────────────────────────────
+        boolean c = true || false && false;
+        //           true || (false && false)    && first!
+        //           true ||     false       = true
+        System.out.println("true || false && false = " + c);  // true
+
+        boolean d = (true || false) && false;
+        //               true       && false = false
+        System.out.println("(true || false) && false = " + d); // false
+
+        // ── Real world: access control logic ──────────
+        boolean isAdmin    = false;
+        boolean isLoggedIn = true;
+        boolean hasToken   = true;
+
+        // Bug: wrong precedence
+        boolean wrong = isAdmin || isLoggedIn && hasToken;
+        //  isAdmin || (isLoggedIn && hasToken)   → && first
+        //   false  ||       true            = true
+        System.out.println("\nwrong logic: " + wrong);   // true (but may not be intended!)
+
+        // Fix with parentheses for clarity
+        boolean correct = (isAdmin || isLoggedIn) && hasToken;
+        //                     true               && true = true
+        System.out.println("correct logic: " + correct); // true
+
+        // ── Complex real-world condition ──────────────
+        int age   = 25;
+        int score = 85;
+        boolean certified = true;
+        boolean active    = true;
+
+        // Eligible if: (age >= 18 AND score >= 80) OR certified, AND must be active
+        boolean eligible = age >= 18 && score >= 80 || certified && active;
+        //                 (age>=18 && score>=80) || (certified && active)
+        //                        true            ||       true           = true
+        System.out.println("Eligible: " + eligible);   // true
+        // Always use parentheses in complex conditions for readability!
+        boolean eligibleClear = ((age >= 18 && score >= 80) || certified) && active;
+        System.out.println("Eligible (clear): " + eligibleClear);  // true
+    }
+}
+```
+
+---
+
+## 🟣 5. Assignment Precedence (Lowest)
+
+Assignments are always evaluated last and are right-associative.
+
+```java
+public class AssignmentPrecedence {
+    public static void main(String[] args) {
+
+        // ── Assignment is right-associative ───────────
+        int a, b, c;
+        a = b = c = 10;
+        //         c = 10 (rightmost first)
+        //     b = c  (b = 10)
+        // a = b  (a = 10)
+        System.out.println("a=" + a + " b=" + b + " c=" + c);  // a=10 b=10 c=10
+
+        // ── Compound assignment is also right-associative ─
+        int x = 10;
+        x += 5 * 2;    // x += (5*2)   arithmetic first, then +=
+        //  x += 10
+        //  x = 10 + 10 = 20
+        System.out.println("x += 5 * 2: " + x);  // 20
+
+        int y = 10;
+        y *= 2 + 3;    // y *= (2+3)   arithmetic first, then *=
+        //  y *= 5
+        //  y = 10 * 5 = 50
+        System.out.println("y *= 2 + 3: " + y);  // 50
+
+        // ── Ternary before assignment ──────────────────
+        int score = 75;
+        String result = score >= 40 ? "PASS" : "FAIL";
+        //              ternary evaluated first, then assigned
+        System.out.println("Result: " + result);  // PASS
+
+        // ── Tricky: assignment inside expression ───────
+        int p = 5;
+        int q = (p = 10) + 5;   // p = 10 first (assignment), then +5
+        System.out.println("p=" + p + " q=" + q);  // p=10 q=15
+    }
+}
+```
+
+---
+
+## 🌍 6. Mixed Precedence Tricky Expressions
+
+```java
+public class MixedPrecedence {
+    public static void main(String[] args) {
+
+        // ══ Expression 1 ══════════════════════════════
+        int a = 5 + 3 * 2 - 8 / 4 + 1;
+        //        5 + (3*2) - (8/4) + 1    * / first
+        //        5 +  6   -   2   + 1     left to right
+        //       11        -   2   + 1
+        //        9              + 1 = 10
+        System.out.println("Expr1: " + a);   // 10
+
+        // ══ Expression 2 ══════════════════════════════
+        int b = 2 << 1 + 1;
+        //        2 << (1+1)    arithmetic before shift
+        //        2 <<  2     = 8
+        System.out.println("Expr2: " + b);   // 8
+
+        // ══ Expression 3 ══════════════════════════════
+        boolean c = 10 > 5 && 3 < 7 || 2 == 3;
+        //           (10>5) && (3<7) || (2==3)    relational first
+        //             true && true  || false
+        //            (true && true) || false     && before ||
+        //                 true      || false = true
+        System.out.println("Expr3: " + c);   // true
+
+        // ══ Expression 4 ══════════════════════════════
+        int x = 5;
+        int d = x++ * 2 + ++x;
+        //        (x++) * 2 + (++x)    postfix ++ first, then prefix ++
+        //          5  * 2 + (++x)     x is now 6 after x++
+        //          5  * 2 +   7       ++x makes x=7, uses 7
+        //         10      +   7 = 17
+        System.out.println("Expr4: " + d + ", x=" + x);  // 17, x=7
+
+        // ══ Expression 5 ══════════════════════════════
+        int e = 4 + 5 * 2 > 10 + 1 ? 100 : 200;
+        //        4 + (5*2) > 10 + 1 ? 100 : 200    * before +
+        //        4 +  10   > 11     ? 100 : 200     + before >
+        //            14    > 11     ? 100 : 200     > before ?:
+        //                  true     ? 100 : 200     ternary
+        //                              100
+        System.out.println("Expr5: " + e);   // 100
+
+        // ══ Expression 6 ══════════════════════════════
+        int f = ~3 & 5 | 2;
+        //       (~3) & 5 | 2       ~ first (unary)
+        //        -4  & 5 | 2       & before |
+        //       (-4 & 5) | 2
+        // -4 = 1111...1100, 5 = 0101
+        // -4 & 5 = 0000...0100 = 4
+        //          4 | 2 = 6
+        System.out.println("Expr6: " + f);   // 6
+
+        // ══ Expression 7 ══════════════════════════════
+        String s = "Hello";
+        boolean g = s != null && s.length() > 3 && s.charAt(0) == 'H';
+        //  (s != null) && (s.length() > 3) && (s.charAt(0) == 'H')
+        //    true      &&     true          &&      true           = true
+        System.out.println("Expr7: " + g);   // true
+
+        // ══ Expression 8 — String concatenation ═══════
+        int p = 1, q = 2;
+        System.out.println("Sum: " + p + q);        // Sum: 12   (concat!)
+        System.out.println("Sum: " + (p + q));      // Sum: 3    (parens first!)
+        System.out.println(p + q + " is result");   // 3 is result (left to right: int+int first)
+    }
+}
+```
+
+---
+
+## ⚠️ 7. The Most Common Precedence Mistakes
+
+```java
+public class CommonMistakes {
+    public static void main(String[] args) {
+
+        // ── Mistake 1: String + int order ─────────────
+        System.out.println("Value: " + 2 + 3);     // "Value: 23"  ❌ (not 5!)
+        System.out.println("Value: " + (2 + 3));   // "Value: 5"   ✅
+
+        // ── Mistake 2: && vs || precedence ────────────
+        boolean a = true, b = false, c = true;
+        // Intended: (a OR b) AND c
+        boolean wrong   = a || b && c;   // actually: a || (b && c) = true || false = true
+        boolean correct = (a || b) && c; // (true || false) && true = true (same here but...)
+
+        a = false; b = false; c = true;
+        wrong   = a || b && c;   // false || (false && true) = false || false = false
+        correct = (a || b) && c; // (false || false) && true = false && true = false
+        // Same here but always use parens in real code for clarity!
+
+        // ── Mistake 3: Bitwise & vs logical && ────────
+        int x = 5, y = 0;
+        // Dangerous: & does NOT short-circuit
+        // if (x > 0 & y == 1/x) { ... }  // if x is 0: 1/x throws exception even if x>0 is false!
+        // Safe: && short-circuits
+        if (x > 0 && y == x / 2) {    // if x<=0, second part never evaluated
+            System.out.println("Safe check passed");
+        }
+
+        // ── Mistake 4: == vs = in condition ───────────
+        int score = 85;
+        // if (score = 90) { ... }     ❌ Compile error in Java (assignment not allowed in if)
+        if (score == 90) { }           // ✅ comparison
+
+        // ── Mistake 5: Negative number with modulo ─────
+        System.out.println(-7 % 3);    // -1 (NOT 2!)
+        // In Java: sign of % follows the dividend (left side)
+        // Fix if you need positive: ((n % m) + m) % m
+        int normalized = ((-7 % 3) + 3) % 3;
+        System.out.println("Normalized -7 % 3: " + normalized);  // 2
+
+        // ── Mistake 6: Integer division truncation ─────
+        double avg1 = 7 / 2;         // 3.0 ❌ (int division first!)
+        double avg2 = 7.0 / 2;       // 3.5 ✅
+        double avg3 = (double) 7 / 2; // 3.5 ✅
+        System.out.println("avg1=" + avg1 + " avg2=" + avg2);  // avg1=3.0 avg2=3.5
+
+        // ── Mistake 7: Chained comparison ─────────────
+        int n = 5;
+        // boolean b2 = 1 < n < 10;  ❌ Compile error
+        boolean b2 = 1 < n && n < 10;  // ✅
+        System.out.println("In range: " + b2);  // true
+    }
+}
+```
+
+---
+
+## 🌍 Real World Project — Expression Evaluator Quiz
+
+```java
+public class PrecedenceQuiz {
+    public static void main(String[] args) {
+
+        System.out.println("╔════════════════════════════════════════╗");
+        System.out.println("║    OPERATOR PRECEDENCE QUIZ            ║");
+        System.out.println("╚════════════════════════════════════════╝");
+
+        // Q1
+        int q1 = 2 + 3 * 4 - 1;
+        System.out.println("Q1: 2 + 3 * 4 - 1 = " + q1);
+        System.out.println("    Step: 2 + (3*4) - 1 = 2 + 12 - 1 = 13 ✅");
+
+        // Q2
+        int q2 = 100 / 10 / 2;
+        System.out.println("\nQ2: 100 / 10 / 2 = " + q2);
+        System.out.println("    Step: (100/10) / 2 = 10/2 = 5 (left→right) ✅");
+
+        // Q3
+        int a = 3, b = 4;
+        int q3 = a++ + ++b;
+        System.out.println("\nQ3: a=3,b=4 → a++ + ++b = " + q3
+                         + " (a=" + a + ", b=" + b + ")");
+        System.out.println("    Step: 3 + 5 = 8 (a→4, b→5) ✅");
+
+        // Q4
+        boolean q4 = 3 + 5 > 4 * 2 == false;
+        //             (3+5) > (4*2) == false
+        //               8   >   8  == false
+        //               false      == false = true
+        System.out.println("\nQ4: 3 + 5 > 4 * 2 == false = " + q4);
+        System.out.println("    Step: (3+5) > (4*2) == false → 8>8=false, false==false=true ✅");
+
+        // Q5
+        int q5 = 1 << 3 + 1;
+        //         1 << (3+1) = 1 << 4 = 16
+        System.out.println("\nQ5: 1 << 3 + 1 = " + q5);
+        System.out.println("    Step: 1 << (3+1) = 1<<4 = 16 ✅");
+
+        // Q6
+        int x = 4;
+        int q6 = x++ * --x;
+        //          4  *  4     postfix++ uses 4, then x=5; prefix-- makes x=4, uses 4
+        System.out.println("\nQ6: x=4 → x++ * --x = " + q6 + " (x=" + x + ")");
+        System.out.println("    Step: (4) * (--x→4) = 4*4=16 ✅");
+
+        // Q7
+        int q7 = 5 | 3 ^ 2 & 6;
+        //          5 | 3 ^ (2 & 6)    & before ^
+        //          5 | 3 ^  2         2&6=2 (010&110=010)
+        //          5 | (3 ^ 2)        ^ before |
+        //          5 |    1           3^2=1 (011^010=001)
+        //          5                  5|1=5 (101|001=101)
+        System.out.println("\nQ7: 5 | 3 ^ 2 & 6 = " + q7);
+        System.out.println("    Step: &→^ →|: 5|(3^(2&6))=5|(3^2)=5|1=5 ✅");
+
+        // Q8
+        int q8 = -2 << 1 + 1;
+        //         -2 << (1+1) = -2 << 2 = -8
+        System.out.println("\nQ8: -2 << 1 + 1 = " + q8);
+        System.out.println("    Step: -2 << (1+1) = -2 << 2 = -8 ✅");
+
+        // Q9
+        String s1 = "A", s2 = "B";
+        String q9 = 1 + 2 + s1 + 3 + 4;
+        //           (1+2) + s1 + 3 + 4    int+int first (left-right)
+        //             3   + "A" + 3 + 4   int+String → String
+        //             "3A"      + 3 + 4   String concat
+        //             "3A3"         + 4
+        //             "3A34"
+        System.out.println("\nQ9: 1 + 2 + s1 + 3 + 4 = " + q9);
+        System.out.println("    Step: (1+2)+\"A\"+3+4 = \"3A34\" ✅");
+
+        // Q10
+        boolean q10 = !false && true || false && !true;
+        //              (!false) && true || false && (!true)    ! first
+        //               true   && true || false &&  false      && next
+        //              (true && true)  || (false && false)
+        //                  true        ||      false         = true
+        System.out.println("\nQ10: !false && true || false && !true = " + q10);
+        System.out.println("     Step: (T&&T)||(F&&F) = T||F = true ✅");
+
+        System.out.println("\n╔════════════════════════════════════════╗");
+        System.out.println("║  Section 3 Complete! All 10/10 ✅      ║");
+        System.out.println("╚════════════════════════════════════════╝");
+    }
+}
+```
+
+**Output:**
+```
+╔════════════════════════════════════════╗
+║    OPERATOR PRECEDENCE QUIZ            ║
+╚════════════════════════════════════════╝
+Q1: 2 + 3 * 4 - 1 = 13
+    Step: 2 + (3*4) - 1 = 2 + 12 - 1 = 13 ✅
+Q2: 100 / 10 / 2 = 5
+    Step: (100/10) / 2 = 10/2 = 5 (left→right) ✅
+Q3: a=3,b=4 → a++ + ++b = 8 (a=4, b=5)
+    Step: 3 + 5 = 8 (a→4, b→5) ✅
+Q4: 3 + 5 > 4 * 2 == false = true
+    Step: (3+5) > (4*2) == false → 8>8=false, false==false=true ✅
+Q5: 1 << 3 + 1 = 16
+    Step: 1 << (3+1) = 1<<4 = 16 ✅
+Q6: x=4 → x++ * --x = 16 (x=4)
+    Step: (4) * (--x→4) = 4*4=16 ✅
+Q7: 5 | 3 ^ 2 & 6 = 5
+    Step: &→^→|: 5|(3^(2&6))=5|(3^2)=5|1=5 ✅
+Q8: -2 << 1 + 1 = -8
+    Step: -2 << (1+1) = -2 << 2 = -8 ✅
+Q9: 1 + 2 + s1 + 3 + 4 = 3A34
+    Step: (1+2)+"A"+3+4 = "3A34" ✅
+Q10: !false && true || false && !true = true
+     Step: (T&&T)||(F&&F) = T||F = true ✅
+╔════════════════════════════════════════╗
+║  Section 3 Complete! All 10/10 ✅      ║
+╚════════════════════════════════════════╝
+```
+
+---
+
+## 🎯 Tricky Interview Questions
+
+---
+
+### ❓ Q1. What is the output?
+
+```java
+System.out.println(2 + 3 + "5" + 2 + 3);
+```
+
+**Answer:** `5523`
+
+Left to right: `2+3=5`, then `5+"5"="55"`, then `"55"+2="552"`, then `"552"+3="5523"`.
+
+---
+
+### ❓ Q2. What is the output?
+
+```java
+int x = 10;
+boolean b = x > 5 && x++ < 20;
+System.out.println(x);
+System.out.println(b);
+```
+
+**Answer:**
+```
+11
+true
+```
+`x > 5` is `true`, so `&&` evaluates right side. `x++ < 20` → uses 10 (true), then x=11.
+
+---
+
+### ❓ Q3. What is the output?
+
+```java
+int a = 5, b = 3;
+int c = a+++b;     // parsed as (a++) + b
+System.out.println(c);
+System.out.println(a);
+```
+
+**Answer:**
+```
+8
+6
+```
+Java's maximal munch rule: `a+++b` = `(a++) + b` = `5 + 3 = 8`. Then a becomes 6.
+
+---
+
+### ❓ Q4. What is the output?
+
+```java
+System.out.println(1 + 2 * 3 == 7 ? "yes" : "no");
+```
+
+**Answer:** `yes`
+
+Step: `1 + (2*3) = 7`, then `7 == 7 = true`, then ternary → `"yes"`.
+
+---
+
+### ❓ Q5. What is the output?
+
+```java
+int x = 5;
+int y = x * 2 + x++ - --x;
+System.out.println(y);
+System.out.println(x);
+```
+
+**Answer:**
+`y = 5*2 + 5 - 5 = 10`, `x = 5`
+
+Step by step:
+- `x * 2` → `5 * 2 = 10`, x still 5
+- `x++` → uses 5, then x becomes 6
+- `--x` → x becomes 5, uses 5
+- `y = 10 + 5 - 5 = 10`, final x = 5
+
+---
+
+### ❓ Q6. What is the output?
+
+```java
+int a = 6;
+int b = a-- - --a;
+System.out.println(b);
+System.out.println(a);
+```
+
+**Answer:** `b=2, a=4`
+
+- `a--` → uses 6, a becomes 5
+- `--a` → a becomes 4, uses 4
+- `b = 6 - 4 = 2`
+
+---
+
+### ❓ Q7. What is the output?
+
+```java
+boolean a = true, b = false, c = true;
+System.out.println(a || b && !c);
+System.out.println(!a || b && c);
+```
+
+**Answer:**
+```
+true
+false
+```
+Line 1: `a || (b && (!c))` = `true || (false && false)` = `true || false` = `true`
+Line 2: `(!a) || (b && c)` = `false || (false && true)` = `false || false` = `false`
+
+---
+
+### ❓ Q8. What is the output?
+
+```java
+int a = 2, b = 3;
+int c = a = b;
+System.out.println(a + " " + b + " " + c);
+```
+
+**Answer:** `3 3 3`
+
+Right to left: `a = b` → `a = 3`. Then `c = a` → `c = 3`.
+
+---
+
+## 📝 Summary
+
+```
+OPERATOR PRECEDENCE — TOP TO BOTTOM (Highest to Lowest)
+──────────────────────────────────────────────────────────────────
+1.  ()  []  .            Parentheses, subscript, member access
+2.  expr++ expr--        Postfix increment/decrement
+3.  ++expr --expr + - ~ ! Prefix, unary, complement, NOT
+4.  * / %                Multiply, divide, modulo
+5.  + -                  Add, subtract
+6.  << >> >>>            Shift operators
+7.  < <= > >= instanceof Relational
+8.  == !=                Equality
+9.  &                    Bitwise AND
+10. ^                    Bitwise XOR
+11. |                    Bitwise OR
+12. &&                   Logical AND
+13. ||                   Logical OR
+14. ?:                   Ternary
+15. = += -= *= /= etc.   Assignment (right-to-left)
+
+GOLDEN RULES:
+✅  Parentheses ALWAYS override — use them for clarity
+✅  * / % before + -
+✅  ! before && before ||
+✅  Relational (> < >= <=) before equality (== !=)
+✅  Bitwise: & before ^ before |
+✅  Postfix (x++) before prefix (++x) in precedence
+✅  Assignment is LAST (right-to-left associativity)
+✅  String + anything = String (left to right)
+✅  a+++b = (a++) + b  (maximal munch)
+
+WHEN IN DOUBT → ADD PARENTHESES!
+```
+
+---
+
+## 🎉 Section 3 — COMPLETE!
+
+| Topic | Status |
+|-------|--------|
+| 3.1 Arithmetic Operators | ✅ |
+| 3.2 Relational Operators | ✅ |
+| 3.3 Logical Operators | ✅ |
+| 3.4 Bitwise Operators | ✅ |
+| 3.5 Assignment Operators | ✅ |
+| 3.6 Ternary Operator | ✅ |
+| 3.7 `instanceof` Operator | ✅ |
+| 3.8 Operator Precedence | ✅ |
+
+---
+
+
 
 
 
